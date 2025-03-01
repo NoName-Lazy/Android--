@@ -39,8 +39,8 @@ export async function apiLogin(loginData: any) {
   userStore = useUserStore();
 
   try {
-    var res = await axiosClient.post("auth/jwt/login", qs.stringify(loginData));
-    var token = "Bearer " + res?.data?.access_token;
+    let res = await axiosClient.post("auth/jwt/login", qs.stringify(loginData));
+    let token = "Bearer " + res?.data?.access_token;
     console.log("Token set:", token);
     userStore.setToken(token);
     console.log(userStore.token);
@@ -118,5 +118,47 @@ export async function apiDeleteImageByPath(path: unknown) {
     }
   } else {
     alertFail(apiDeleteImageByPath.name, "待删除文件path不能为空");
+  }
+}
+
+export async function apiGetDetailProfile() {
+  userStore = useUserStore();
+  try {
+    let res = await axiosClient.get("users/mine");
+    let userData = res?.data;
+    return Promise.resolve(userData);
+  } catch (error: any) {
+    alertFail(apiGetDetailProfile.name, error?.message);
+  }
+}
+
+export async function apiRenameMe(postData: any) {
+  try {
+    let data = await axiosClient.post("/users/rename/", postData);
+    showSuccess(apiRenameMe.name, data);
+    return Promise.resolve(data);
+  } catch (error: any) {
+    alertFail(apiRenameMe.name, error?.message);
+  }
+}
+
+export async function apiModifyPassword(password: string) {
+  try {
+    let user = await apiGetProfile();
+    if (user) {
+      user.password = password;
+      let res = await axiosClient.patch("/users/me", user);
+
+      if (res?.data) {
+        showSuccess(apiModifyPassword.name, res?.data);
+        return Promise.resolve(res.data);
+      } else {
+        alertFail(apiModifyPassword.name, "Fail to modify password");
+      }
+    } else {
+      alertFail(apiModifyPassword.name, "Fail to modify password");
+    }
+  } catch (error: any) {
+    alertFail(apiRenameMe.name, error?.message);
   }
 }

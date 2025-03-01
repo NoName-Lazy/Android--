@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import MyLogin from "@/views/MyLogin.vue";
-import MyProfile from "@/views/TestImageuploader.vue";
+import MyProfile from "@/views/MyProfile.vue";
+// import MyProfile from "@/views/TestImageuploader.vue";
 
 const routes = [
   { path: "/", name: "home", component: MyProfile },

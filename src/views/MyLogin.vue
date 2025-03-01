@@ -34,7 +34,6 @@
 
 <script setup lang="ts">
 import { apiLogin } from "@/utils/apiUtils";
-import { alertSuccess } from "@/utils/showMessage";
 import { reactive } from "vue";
 
 import logoSrc from "@/assets/login_logo.jpg";
