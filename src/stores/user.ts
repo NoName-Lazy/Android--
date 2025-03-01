@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import CryptoJS from "crypto-js";
+
 const KEY = "dsf234dsj342";
 
 function encryptText(text: string) {

@@ -16,10 +16,10 @@
       v-if="uploaderView"
       v-model:img-src="renameData.avatar"
       need-compression
-      @onDelete="modifyProfile"
-      @onSuccess="modifyProfile"
+      @on-delete="modifyProfile"
+      @on-success="modifyProfile"
     ></ImageUploader>
-    <nut-cell :title="'UUID' + userDetail.uuid"></nut-cell>
+    <nut-cell :title="'UUID ' + userDetail.uuid"></nut-cell>
     <nut-cell title="姓名" is-link @click="changeNameView">
       <template #desc>
         <span>{{ userDetail.name }}</span>
@@ -48,7 +48,7 @@
       placeholder="请输入新密码"
       clearable
       v-if="pwdView"
-      :type="pwdStyle as InputType"
+      :type="pwdStyle"
     >
       <template #left>
         <Eye @click="changePwdStyle"></Eye>
@@ -82,6 +82,7 @@
 import { useUserStore } from "@/stores/user";
 import { Eye } from "@nutui/icons-vue";
 import {
+  apiGetDetailProfile,
   apiGetProfile,
   apiLogout,
   apiModifyPassword,
@@ -92,7 +93,7 @@ import { gotoBack, gotoLogin as login } from "@/router";
 import { onMounted, reactive, ref } from "vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
-import type { InputType } from "@nutui/nutui";
+import { log } from "console";
 const userStore = useUserStore();
 const userStoreRef = storeToRefs(userStore);
 const userDetail = reactive({
@@ -116,7 +117,10 @@ const newPwd = ref(userStore.getDecodedPwd);
 const inputTypes = ["password", "text"];
 const pwdStyle = ref(inputTypes[0]);
 async function modifyProfile() {
+  console.log(renameData);
+
   await apiRenameMe(renameData);
+
   await getProfileDetail();
 }
 async function changePassWord() {
@@ -151,12 +155,13 @@ function gotoLogin() {
   login();
 }
 async function getProfileDetail() {
-  let data = await apiGetProfile();
+  let data = await apiGetDetailProfile();
   if (data) {
     Object.assign(userDetail, data);
     userDetail.avatar = imageBaseUrl + data.avatar;
     renameData.name = userDetail.name;
     renameData.avatar = data.avatar;
+    console.log(renameData);
   }
 }
 

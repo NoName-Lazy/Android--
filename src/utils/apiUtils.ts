@@ -124,18 +124,19 @@ export async function apiDeleteImageByPath(path: unknown) {
 export async function apiGetDetailProfile() {
   userStore = useUserStore();
   try {
-    let res = await axiosClient.get("users/mine");
+    let res = await axiosClient.get("users/mine/");
     let userData = res?.data;
     return Promise.resolve(userData);
   } catch (error: any) {
-    alertFail(apiGetDetailProfile.name, error?.message);
+    alertFail(apiGetProfile.name, error?.message);
   }
 }
 
-export async function apiRenameMe(postData: any) {
+export async function apiRenameMe(postData: Object) {
   try {
     let data = await axiosClient.post("/users/rename/", postData);
     showSuccess(apiRenameMe.name, data);
+
     return Promise.resolve(data);
   } catch (error: any) {
     alertFail(apiRenameMe.name, error?.message);
