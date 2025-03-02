@@ -40,14 +40,20 @@ export async function apiLogin(loginData: any) {
 
   try {
     let res = await axiosClient.post("auth/jwt/login", qs.stringify(loginData));
-    let token = "Bearer " + res?.data?.access_token;
-    console.log("Token set:", token);
-    userStore.setToken(token);
-    console.log(userStore.token);
-
-    userStore.setLoginState(true);
-    return Promise.resolve(res?.data);
+    if (res) {
+      let token = "Bearer " + res?.data?.access_token;
+      userStore.setToken(token);
+      userStore.setLoginState(true);
+      userStore.setUserName(loginData.username);
+      userStore.setPassword(loginData.password);
+      await apiGetProfile();
+      return Promise.resolve(res?.data);
+    } else {
+      userStore.setLoginState(false);
+      alertFail(apiLogin.name, "登录发生错误，服务端无响应");
+    }
   } catch (e: any) {
+    userStore.setLoginState(false);
     alertFail(apiLogin.name, e?.message);
   }
 }
@@ -161,5 +167,26 @@ export async function apiModifyPassword(password: string) {
     }
   } catch (error: any) {
     alertFail(apiRenameMe.name, error?.message);
+  }
+}
+
+export async function apiRegister(postData: any) {
+  postData.is_active = true;
+  postData.is_superuser = false;
+  postData.is_verified = false;
+  try {
+    let res = await axiosClient.post("/auth/register", postData);
+    if (res?.data) {
+      let loginData = { username: postData.email, password: postData.password };
+      await apiLogin(loginData);
+      let out = await apiRenameMe({ name: postData.email, avatar: "" });
+      showSuccess(apiRegister.name, out?.data);
+      return Promise.resolve(out?.data);
+    } else {
+      alertFail(apiRegister.name, "Fail to register");
+    }
+  } catch (error: any) {
+    let detail = error?.response?.data.detail;
+    alertFail(apiRegister.name, detail ? detail : error?.message);
   }
 }

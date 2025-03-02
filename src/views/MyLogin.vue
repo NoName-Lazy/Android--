@@ -30,6 +30,12 @@
   <div class="center">
     <nut-button type="info" @click="logIn">登录</nut-button>
   </div>
+
+  <nut-row type="flex" justify="center">
+    <nut-col :span="18" fill>
+      <nut-cell title='没有账号 去注册' is-link @click="gotoRegister"></nut-cell>
+    </nut-col>
+  </nut-row>
 </template>
 
 <script setup lang="ts">
@@ -37,7 +43,7 @@ import { apiLogin } from "@/utils/apiUtils";
 import { reactive } from "vue";
 
 import logoSrc from "@/assets/login_logo.jpg";
-import { gotoBack } from "@/router";
+import { gotoBack, gotoHome, gotoRegister } from "@/router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 const userStore = useUserStore();
@@ -51,7 +57,7 @@ async function logIn() {
   if (data) {
     userStore.setUser(formData.username);
     userStore.setPassword(formData.password);
-    gotoBack();
+    gotoHome();
   }
 }
 </script>
