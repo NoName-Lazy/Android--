@@ -3,10 +3,11 @@ import MyLogin from "@/views/MyLogin.vue";
 import MyProfile from "@/views/MyProfile.vue";
 import path from "path";
 import MyRegister from "@/views/MyRegister.vue";
+import MyHome from "@/views/MyHome.vue";
 // import MyProfile from "@/views/TestImageuploader.vue";
 
 const routes = [
-  { path: "/", name: "home", component: MyProfile },
+  { path: "/", name: "home", component: MyHome },
   { path: "/login", name: "login", component: MyLogin },
   { path: "/register", name: "register", component: MyRegister },
 ];

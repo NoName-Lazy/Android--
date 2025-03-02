@@ -90,7 +90,7 @@ import {
 } from "@/utils/apiUtils";
 import { storeToRefs } from "pinia";
 import { gotoBack, gotoLogin as login } from "@/router";
-import { onMounted, reactive, ref } from "vue";
+import { onActivated, onMounted, reactive, ref } from "vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
 import { log } from "console";
@@ -171,6 +171,9 @@ onMounted(() => {
   if (userStore.isLogin) {
     getProfileDetail();
   }
+});
+onActivated(() => {
+  getProfileDetail();
 });
 </script>
 
