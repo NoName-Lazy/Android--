@@ -3,6 +3,7 @@ import { alertFail, showFail, showSuccess } from "./showMessage";
 import { useUserStore } from "@/stores/user";
 import qs from "qs";
 import { baseUrl } from "@/stores/basic-data";
+import { ref, watchEffect } from "vue";
 let userStore: ReturnType<typeof useUserStore>;
 const url = baseUrl;
 axios.defaults.baseURL = url;
@@ -189,4 +190,32 @@ export async function apiRegister(postData: any) {
     let detail = error?.response?.data.detail;
     alertFail(apiRegister.name, detail ? detail : error?.message);
   }
+}
+
+export function apiGetAllItemsRefresh(
+  timeCounter: any,
+  query = ref("skip=0&limit=100")
+) {
+  let list: any = ref(null);
+  let error = ref(null);
+  let isLoading = ref(true);
+  let url;
+  watchEffect(() => {
+    url = "/items/auto-refresh/${toValue(timeCounter)}?${toValue(query)}";
+    isLoading.value = true;
+    axiosClient
+      .get(url)
+      .then((res) => {
+        if (res?.data) {
+          list.value = res.data;
+        }
+        isLoading.value = false;
+        error.value = null;
+      })
+      .catch((e) => {
+        error.value = e?.message ? e.message : JSON.stringify(e, null, 1);
+        isLoading.value = false;
+      });
+  });
+  return { list, error, isLoading };
 }

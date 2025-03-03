@@ -69,6 +69,7 @@
         <span>{{ userDetail.comments.length }}</span>
       </template>
     </nut-cell>
+    <nut-cell title="参数设置" is-link @click="gotoSettings"></nut-cell>
     <div class="center">
       <nut-button type="primary" @click="logout">登出</nut-button>
     </div>
@@ -89,7 +90,7 @@ import {
   apiRenameMe,
 } from "@/utils/apiUtils";
 import { storeToRefs } from "pinia";
-import { gotoBack, gotoLogin as login } from "@/router";
+import { gotoBack, gotoSettings, gotoLogin as login } from "@/router";
 import { onActivated, onMounted, reactive, ref } from "vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
