@@ -33,19 +33,26 @@
 
   <nut-row type="flex" justify="center">
     <nut-col :span="18" fill>
-      <nut-cell title='没有账号 去注册' is-link @click="gotoRegister"></nut-cell>
+      <nut-cell
+        title="没有账号 去注册"
+        is-link
+        @click="gotoRegister"
+      ></nut-cell>
     </nut-col>
   </nut-row>
 </template>
 
 <script setup lang="ts">
-import { apiLogin } from "@/utils/apiUtils";
+import { apiGetDetailProfile, apiLogin } from "@/utils/apiUtils";
 import { reactive } from "vue";
 
 import logoSrc from "@/assets/login_logo.jpg";
 import { gotoBack, gotoHome, gotoRegister } from "@/router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import { useRoute } from "vue-router";
+const route = useRoute();
+const back: any = route.params?.back ?? 0;
 const userStore = useUserStore();
 const userStoreRef = storeToRefs(userStore);
 const formData = reactive({
@@ -55,9 +62,15 @@ const formData = reactive({
 async function logIn() {
   let data = await apiLogin(formData);
   if (data) {
-    userStore.setUser(formData.username);
-    userStore.setPassword(formData.password);
-    gotoHome();
+    await apiGetDetailProfile();
+    console.log("back", back);
+    if (back == 1) {
+      gotoBack();
+    } else {
+      gotoHome();
+    }
+    // userStore.setUser(formData.username);
+    // userStore.setPassword(formData.password);
   }
 }
 </script>

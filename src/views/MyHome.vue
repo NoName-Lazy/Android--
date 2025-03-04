@@ -27,8 +27,10 @@ import MyComments from "./MyComments.vue";
 import MyProfile from "./MyProfile.vue";
 import { shallowRef } from "vue";
 import { Comment, Find, Home, My } from "@nutui/icons-vue";
+import { loginOnLaunch } from "@/utils/apiUtils";
+import { gotoLogin } from "@/router";
 const components = [AllArticles, MyArticles, MyComments, MyProfile];
-const activeTab = ref(3);
+const activeTab = ref(1);
 const currentComponent = shallowRef(components[activeTab.value]);
 const List = [
   {
@@ -53,7 +55,11 @@ const List = [
   },
 ];
 onMounted(() => {
-  tabSwitch(null, activeTab.value);
+  loginOnLaunch().catch((e) => {
+    console.log("loginOnLaunch", e);
+    gotoLogin();
+  });
+  // tabSwitch(null, activeTab.value);
 });
 const tabSwitch = (_: any, index: any) => {
   console.log(index);

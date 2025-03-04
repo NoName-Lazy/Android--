@@ -21,10 +21,13 @@ export const useUserStore = defineStore("userState", {
   state: () => {
     return {
       user: {},
+      avatar: "",
+      nickName: "",
       token: "",
+      uuid: "",
       isLogin: false,
       userName: "aa@wzu.edu.cn",
-      passWord: "123456",
+      passWord: "",
     };
   },
   getters: {
@@ -47,6 +50,11 @@ export const useUserStore = defineStore("userState", {
     },
     setPassword(pwd: string) {
       this.passWord = pwd;
+    },
+    setUserDetail(userDetail: any) {
+      this.avatar = userDetail?.avatar ?? "";
+      this.nickName = userDetail?.name ?? "";
+      this.uuid = userDetail?.uuid ?? "";
     },
   },
   persist: {

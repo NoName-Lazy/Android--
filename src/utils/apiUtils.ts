@@ -3,7 +3,8 @@ import { alertFail, showFail, showSuccess } from "./showMessage";
 import { useUserStore } from "@/stores/user";
 import qs from "qs";
 import { baseUrl } from "@/stores/basic-data";
-import { ref, watchEffect } from "vue";
+import { ref, toValue, watch, watchEffect } from "vue";
+import { gotoLogin } from "@/router";
 let userStore: ReturnType<typeof useUserStore>;
 const url = baseUrl;
 axios.defaults.baseURL = url;
@@ -86,8 +87,9 @@ export async function apiLogout() {
       userStore.setLoginState(false);
       userStore.setToken("");
       userStore.setUser({});
+      userStore.setUserDetail({});
     }
-    return e;
+    gotoLogin();
   }
 }
 
@@ -133,6 +135,7 @@ export async function apiGetDetailProfile() {
   try {
     let res = await axiosClient.get("users/mine/");
     let userData = res?.data;
+    userStore.setUserDetail(userData);
     return Promise.resolve(userData);
   } catch (error: any) {
     alertFail(apiGetProfile.name, error?.message);
@@ -218,4 +221,244 @@ export function apiGetAllItemsRefresh(
       });
   });
   return { list, error, isLoading };
+}
+
+export async function loginOnLaunch() {
+  userStore = useUserStore();
+  if (userStore.isLogin) {
+    let loginData = {
+      username: userStore.userName,
+      password: userStore.getDecodedPwd,
+    };
+    try {
+      let data = await apiLogin(loginData);
+      if (data) {
+        let userDetail = await apiGetDetailProfile();
+        if (userDetail) {
+          userStore.setUserDetail(userDetail);
+        }
+        return Promise.resolve(data);
+      } else {
+        return Promise.reject("Login failed");
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+}
+
+export function apiGetAllItemsByUserId(
+  timeCounter: Number,
+  user_UUID: String,
+  query = ref("")
+) {
+  let list = ref(null);
+  let error = ref(null);
+  let isLoading = ref(true);
+  let url;
+  let watchData = [
+    () => toValue(timeCounter),
+    () => toValue(user_UUID),
+    () => toValue(query),
+  ];
+  watch(watchData, () => {
+    let q = toValue(query);
+    let uuid = toValue(user_UUID);
+    console.log(apiGetAllItemsByUserId.name, "UUID", uuid);
+    if (!uuid) {
+      list.value = null;
+      isLoading.value = false;
+    } else {
+      url = "/items/users/${uuid}";
+      if (q) {
+        url = `${url}?keyword=${q}`;
+      }
+      isLoading.value = true;
+      axiosClient
+        .get(url)
+        .then((res) => {
+          if (res?.data) {
+            list.value = res.data;
+          }
+          isLoading.value = false;
+          error.value = null;
+        })
+        .catch((e) => {
+          if (e.status == 404) {
+            showFail(apiGetAllItemsByUserId.name, "无数据");
+            list.value = null;
+            error.value = null;
+          } else {
+            error.value = e?.message ? e.message : JSON.stringify(e, null, 1);
+          }
+          isLoading.value = false;
+        });
+    }
+  });
+  return { list, error, isLoading };
+}
+export async function apiDeleteImageByID(id: any) {
+  try {
+    let res = await axiosClient.delete(`/deleteimage-byid/${id}`);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiDeleteImageByID.name, error?.message);
+  }
+}
+
+export async function apiAddOrEditImageById(itemId: any, params: any) {
+  try {
+    let res = await axiosClient.post(
+      `/modifyimage/${itemId}/${params.id}`,
+      params
+    );
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiAddOrEditImageById.name, error?.message);
+  }
+}
+
+export async function apiPostItemTitle(params: any) {
+  try {
+    let res = await axiosClient.post("/items/", params);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiPostItemTitle.name, error?.message);
+  }
+}
+
+export async function apiModifyItemTitle(itemId: any, params: any) {
+  try {
+    let res = await axiosClient.post("/items/put/" + itemId, params);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiModifyItemTitle.name, error?.message);
+  }
+}
+
+export function apiGetItemById(itemId: any, refreshCount = ref(0)) {
+  const error = ref(null);
+  const itemData = ref(null);
+  const isLoading = ref(true);
+  watch(
+    () => toValue(refreshCount),
+    () => {
+      isLoading.value = true;
+      axiosClient
+        .get("/items/" + itemId)
+        .then((res) => {
+          console.log("res", res);
+          if (res?.data) {
+            itemData.value = res.data;
+            console.log(apiGetItemById.name, "itemData", itemData);
+          }
+          isLoading.value = false;
+          error.value = null;
+        })
+        .catch((e) => {
+          alertFail(apiGetItemById.name, e?.message);
+          error.value = e?.message;
+          isLoading.value = false;
+        });
+    }
+  );
+  return { itemData, error, isLoading };
+}
+
+export async function apiDeleteItemById(itemId: any) {
+  try {
+    let res = await axiosClient.delete("/deleteitem-byid/", itemId);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiDeleteItemById.name, error?.message);
+  }
+}
+
+export function apiGetCommentsByItemId(counter = ref(1), itemId: any) {
+  const comments: any = ref(null);
+  const error = ref(null);
+  const isLoading = ref(true);
+  const watchData = [() => toValue(counter), () => toValue(itemId)];
+  watch(watchData, () => {
+    let url = "/comments/by-itemid/" + toValue(itemId);
+    console.log("comment_url", url);
+    isLoading.value = true;
+    axiosClient
+      .get(url)
+      .then((res) => {
+        if (res?.data) {
+          comments.value = res.data;
+        }
+        isLoading.value = false;
+        error.value = null;
+      })
+      .catch((e) => {
+        console.log("e", e);
+        if (e.status == 404) {
+          showFail(apiGetCommentsByItemId.name, "无评论数据");
+          comments.value = [];
+        } else {
+          alertFail(apiGetCommentsByItemId.name, e?.message);
+          error.value = e?.message;
+        }
+        isLoading.value = false;
+      });
+  });
+  return { comments, error, isLoading };
+}
+
+export async function apiDeleteCommentById(commentId: any) {
+  try {
+    let res = await axiosClient.delete("/delete-comment/" + commentId);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiDeleteCommentById.name, error?.message);
+  }
+}
+export async function apiPostComment(itemId: any, params: any) {
+  try {
+    let res = await axiosClient.post("/comments/" + itemId, params);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiPostComment.name, error?.message);
+  }
+}
+export async function apiAddItemStar(itemId: any) {
+  try {
+    let res = await axiosClient.post("/items/put/addstar/" + itemId);
+    return Promise.resolve(res?.data);
+  } catch (error: any) {
+    alertFail(apiAddItemStar.name, error?.message);
+  }
+}
+export function apiGetMyComments(counter = ref(1)) {
+  const comments: any = ref(null);
+  const error = ref(null);
+  const isLoading = ref(true);
+  const watchData = [() => toValue(counter)];
+  watch(watchData, () => {
+    let url = "/comments/mine/";
+    isLoading.value = true;
+    axiosClient
+      .get(url)
+      .then((res) => {
+        if (res?.data) {
+          comments.value = res.data;
+        }
+        isLoading.value = false;
+        error.value = null;
+      })
+      .catch((e) => {
+        console.log("e", e);
+        if (e.status == 404 || e.status == 401) {
+          showFail(apiGetCommentsByItemId.name, "无评论数据");
+          comments.value = [];
+        } else {
+          alertFail(apiGetCommentsByItemId.name, e?.message);
+          error.value = e?.message;
+        }
+        isLoading.value = false;
+      });
+  });
+  return { comments, error, isLoading };
 }

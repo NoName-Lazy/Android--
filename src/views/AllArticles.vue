@@ -31,23 +31,36 @@
         fill
       >
         <nut-pull-refresh v-model="isLoading" @refresh="refreshFun">
-          <MyCard v-for="[k, item] in allList" :key="k" v-bind="item"></MyCard>
+          <MyCard
+            v-for="[k, item] in allList"
+            :key="k"
+            v-bind="item"
+            @onClickStar="(id) => clickStar(id)"
+            @onClickComment="gotoShowComment(item.id)"
+          ></MyCard>
         </nut-pull-refresh>
       </nut-space>
       <nut-space v-else direction="vertical" align="center" fill>
-        <MyCard v-for="[k, item] in allList" :key="k" v-bind="item"></MyCard>
+        <MyCard
+          v-for="[k, item] in allList"
+          :key="k"
+          v-bind="item"
+          @onClickStar="(id) => clickStar(id)"
+          @onClickComment="gotoShowComment(item.id)"
+        ></MyCard>
       </nut-space>
     </nut-infinite-loading>
   </div>
 </template>
 
 <script setup lang="ts">
-import { apiGetAllItemsRefresh } from "@/utils/apiUtils";
+import { apiAddItemStar, apiGetAllItemsRefresh } from "@/utils/apiUtils";
 import { computed, onActivated, ref, watch } from "vue";
 import MyCard from "./MyCard.vue";
 import { useCounterStore } from "@/stores/counter-store";
 import { storeToRefs } from "pinia";
 import { useScrollPos } from "@/utils/scrollUtils";
+import { gotoShowComment } from "@/router";
 
 const counterStore = useCounterStore();
 const counterRefObj = storeToRefs(counterStore);
@@ -97,6 +110,13 @@ useScrollPos();
 function refreshFun() {
   // counterRef.value++;
   counterStore.incrementArticleCounter();
+}
+
+async function clickStar(id: any) {
+  let data = await apiAddItemStar(id);
+  if (data) {
+    Object.assign(allList.value.get(id), data);
+  }
 }
 </script>
 
