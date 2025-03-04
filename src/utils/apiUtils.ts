@@ -248,8 +248,8 @@ export async function loginOnLaunch() {
 }
 
 export function apiGetAllItemsByUserId(
-  timeCounter: Number,
-  user_UUID: String,
+  timeCounter: any,
+  user_UUID: any,
   query = ref("")
 ) {
   let list = ref(null);
@@ -269,7 +269,7 @@ export function apiGetAllItemsByUserId(
       list.value = null;
       isLoading.value = false;
     } else {
-      url = "/items/users/${uuid}";
+      url = `/items/users/${uuid}`;
       if (q) {
         url = `${url}?keyword=${q}`;
       }
@@ -295,14 +295,16 @@ export function apiGetAllItemsByUserId(
         });
     }
   });
+  console.log(list, isLoading);
+
   return { list, error, isLoading };
 }
-export async function apiDeleteImageByID(id: any) {
+export async function apiDeleteImageById(id: any) {
   try {
     let res = await axiosClient.delete(`/deleteimage-byid/${id}`);
     return Promise.resolve(res?.data);
   } catch (error: any) {
-    alertFail(apiDeleteImageByID.name, error?.message);
+    alertFail(apiDeleteImageById.name, error?.message);
   }
 }
 
@@ -461,4 +463,33 @@ export function apiGetMyComments(counter = ref(1)) {
       });
   });
   return { comments, error, isLoading };
+}
+
+export async function apiPostItemDetail(
+  itemIdRef: any,
+  titleForm: any,
+  imgContents: any
+) {
+  let itemId = itemIdRef.value;
+  if (itemId == 0) {
+    let item = await apiPostItemTitle(titleForm);
+    itemIdRef.value = item.id;
+    itemId = item.id;
+    console.log(
+      apiPostItemDetail.name,
+      "itemIdRef未立即生效",
+      "itemIdRef",
+      itemIdRef.value,
+      "itemId",
+      itemId
+    );
+  } else {
+    await apiModifyItemTitle(itemId, titleForm);
+  }
+  for (let i = 0; i < imgContents.length; i++) {
+    let imgContent = imgContents[i];
+    await apiAddOrEditImageById(itemId, imgContent);
+  }
+  console.log("异步循环结束的itemIdRef", itemIdRef.value);
+  return Promise.resolve(itemId);
 }

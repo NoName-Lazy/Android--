@@ -1,7 +1,7 @@
 <template>
   <div>
     <RouterView v-slot="{ Component }">
-      <KeepAlive include="MyHome">
+      <KeepAlive include="MyHome,ShowArticle">
         <component :is="Component" :key="$route.path"></component>
       </KeepAlive>
     </RouterView>

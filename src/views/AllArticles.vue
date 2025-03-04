@@ -22,10 +22,11 @@
     <nut-infinite-loading
       v-model="isLoading"
       :has-more="hasMore"
+      @scroll-change="scrollChange"
       @load-more="loadMore"
     >
       <nut-space
-        v-if="!counterRefObj.articleCounterEnabled.value"
+        v-if="!counterEnableRef"
         direction="vertical"
         align="center"
         fill
@@ -65,6 +66,7 @@ import { gotoShowComment } from "@/router";
 const counterStore = useCounterStore();
 const counterRefObj = storeToRefs(counterStore);
 const counterRef = ref(counterRefObj.articleCounter);
+const counterEnableRef = ref(counterRefObj.articleCounterEnabled.value);
 const hasMore = ref(true);
 const currentPage = ref(0);
 var pageSize = 5;
@@ -78,6 +80,9 @@ const { list, error, isLoading } = apiGetAllItemsRefresh(counterRef, q);
 function loadMore() {
   pageSize = DEFAULT_PAGE_SIZE;
   currentPage.value++;
+}
+function scrollChange(v: any) {
+  console.log(`v=${v},currentPage=${currentPage.value}`);
 }
 watch(list, () => {
   // console.log(list.value);
