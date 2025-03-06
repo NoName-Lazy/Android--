@@ -73,7 +73,7 @@ var pageSize = 5;
 const DEFAULT_PAGE_SIZE = 5;
 const q = computed(() => {
   let offset = pageSize * currentPage.value;
-  return "skip=${offset}&limit=${pageSize}";
+  return `skip=${offset}&limit=${pageSize}`;
 });
 const allList = ref(new Map());
 const { list, error, isLoading } = apiGetAllItemsRefresh(counterRef, q);

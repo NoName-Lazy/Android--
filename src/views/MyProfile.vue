@@ -84,7 +84,6 @@ import { useUserStore } from "@/stores/user";
 import { Eye } from "@nutui/icons-vue";
 import {
   apiGetDetailProfile,
-  apiGetProfile,
   apiLogout,
   apiModifyPassword,
   apiRenameMe,
@@ -94,7 +93,6 @@ import { gotoBack, gotoSettings, gotoLogin as login } from "@/router";
 import { onActivated, onMounted, reactive, ref } from "vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
-import { log } from "console";
 const userStore = useUserStore();
 const userStoreRef = storeToRefs(userStore);
 const userDetail = reactive({
@@ -116,7 +114,7 @@ const uploaderView = ref(false);
 const pwdView = ref(false);
 const newPwd = ref(userStore.getDecodedPwd);
 const inputTypes = ["password", "text"];
-const pwdStyle = ref(inputTypes[0]);
+const pwdStyle: any = ref(inputTypes[0]);
 async function modifyProfile() {
   console.log(renameData);
 

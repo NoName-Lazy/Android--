@@ -56,10 +56,12 @@ const back: any = route.params?.back ?? 0;
 const userStore = useUserStore();
 const userStoreRef = storeToRefs(userStore);
 const formData = reactive({
-  username: userStore.userName,
-  password: userStoreRef.getDecodedPwd.value,
+  username: userStoreRef.userName,
+  password: userStore.getDecodedPwd,
 });
 async function logIn() {
+  // console.log("formData", formData);
+
   let data = await apiLogin(formData);
   if (data) {
     await apiGetDetailProfile();
@@ -67,10 +69,10 @@ async function logIn() {
     if (back == 1) {
       gotoBack();
     } else {
+      userStore.setUser(formData.username);
+      userStore.setPassword(formData.password);
       gotoHome();
     }
-    // userStore.setUser(formData.username);
-    // userStore.setPassword(formData.password);
   }
 }
 </script>

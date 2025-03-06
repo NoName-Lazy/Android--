@@ -23,7 +23,7 @@
     </nut-form-item>
   </nut-form>
   <nut-swipe-group lock>
-    <nut-swipe :name="item.order" :key="item.order" v-for="item in imgContents">
+    <nut-swipe :name="item.order" v-for="item in imgContents" :key="item.order">
       <nut-textarea
         v-model="item.img_content"
         :rows="3"
@@ -99,6 +99,8 @@ async function onImgContentSuccess(item: any, resObj: any) {
   item.name = resObj.name;
 }
 async function submitContent() {
+  // console.log(formData);
+
   let id = await apiPostItemDetail(itemId, formData.value, imgContents.value);
   console.log(submitContent.name, "id", id);
   emits("onSubmit", id);

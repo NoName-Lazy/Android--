@@ -46,7 +46,7 @@ import { storeToRefs } from "pinia";
 import { onActivated, ref } from "vue";
 import ErrorState from "./ErrorState.vue";
 import { gotoLogin, gotoShowComment } from "@/router";
-import { formatDateTime } from "@/utils/formatUrils";
+import { formatDateTime } from "@/utils/formatUtils";
 import { imageBaseUrl } from "@/stores/basic-data";
 
 const counter = ref(1);

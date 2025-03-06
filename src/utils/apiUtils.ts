@@ -39,9 +39,13 @@ axiosClient.interceptors.response.use(
 
 export async function apiLogin(loginData: any) {
   userStore = useUserStore();
+  // console.log("loginData: ", loginData);
 
   try {
-    let res = await axiosClient.post("auth/jwt/login", qs.stringify(loginData));
+    let res = await axiosClient.post(
+      "auth/jwt/login/",
+      qs.stringify(loginData)
+    );
     if (res) {
       let token = "Bearer " + res?.data?.access_token;
       userStore.setToken(token);
@@ -136,6 +140,8 @@ export async function apiGetDetailProfile() {
     let res = await axiosClient.get("users/mine/");
     let userData = res?.data;
     userStore.setUserDetail(userData);
+    console.log(userStore);
+
     return Promise.resolve(userData);
   } catch (error: any) {
     alertFail(apiGetProfile.name, error?.message);
@@ -224,14 +230,22 @@ export function apiGetAllItemsRefresh(
 }
 
 export async function loginOnLaunch() {
+  console.log("触发loginOnLaunch");
+
   userStore = useUserStore();
+  console.log(userStore.isLogin);
+
   if (userStore.isLogin) {
     let loginData = {
       username: userStore.userName,
       password: userStore.getDecodedPwd,
     };
+    console.log("loginData: ", loginData);
+
     try {
       let data = await apiLogin(loginData);
+      console.log("data: ", data);
+
       if (data) {
         let userDetail = await apiGetDetailProfile();
         if (userDetail) {
@@ -241,8 +255,8 @@ export async function loginOnLaunch() {
       } else {
         return Promise.reject("Login failed");
       }
-    } catch (error) {
-      return Promise.reject(error);
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 }
@@ -310,6 +324,8 @@ export async function apiDeleteImageById(id: any) {
 
 export async function apiAddOrEditImageById(itemId: any, params: any) {
   try {
+    console.log(itemId, " ", params.id);
+
     let res = await axiosClient.post(
       `/modifyimage/${itemId}/${params.id}`,
       params
@@ -331,6 +347,8 @@ export async function apiPostItemTitle(params: any) {
 
 export async function apiModifyItemTitle(itemId: any, params: any) {
   try {
+    console.log(itemId, params);
+
     let res = await axiosClient.post("/items/put/" + itemId, params);
     return Promise.resolve(res?.data);
   } catch (error: any) {
@@ -369,7 +387,9 @@ export function apiGetItemById(itemId: any, refreshCount = ref(0)) {
 
 export async function apiDeleteItemById(itemId: any) {
   try {
-    let res = await axiosClient.delete("/deleteitem-byid/", itemId);
+    console.log(itemId);
+    let res = await axiosClient.delete("/deleteitem-byid/" + itemId);
+    console.log(res);
     return Promise.resolve(res?.data);
   } catch (error: any) {
     alertFail(apiDeleteItemById.name, error?.message);
@@ -470,6 +490,8 @@ export async function apiPostItemDetail(
   titleForm: any,
   imgContents: any
 ) {
+  console.log(titleForm);
+
   let itemId = itemIdRef.value;
   if (itemId == 0) {
     let item = await apiPostItemTitle(titleForm);

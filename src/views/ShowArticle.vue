@@ -69,7 +69,7 @@ import { Edit, Eye } from "@nutui/icons-vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import { useUserStore } from "@/stores/user";
 import { apiGetItemById, apiPostItemDetail } from "@/utils/apiUtils";
-import { formatDateTime } from "@/utils/formatUrils";
+import { formatDateTime } from "@/utils/formatUtils";
 import { onActivated, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import MyHead from "./MyHead.vue";

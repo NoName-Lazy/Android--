@@ -10,12 +10,12 @@
               </nut-col>
               <nut-col :span="8">
                 <span @click="gotoShowComment(item.id)">
-                  <icon-message></icon-message>{{ item.comment_count }}
+                  <IconMessage></IconMessage>{{ item.comment_count }}
                 </span>
               </nut-col>
               <nut-col :span="8">
                 <span @click="confirmDelete(item)">
-                  <icon-delete></icon-delete>
+                  <IconDelete></IconDelete>
                 </span>
               </nut-col>
             </nut-row>
@@ -50,7 +50,7 @@ import {
   IconDelete,
 } from "@arco-design/web-vue/es/icon";
 import { apiDeleteItemById } from "@/utils/apiUtils";
-import { formatDateTime } from "@/utils/formatUrils";
+import { formatDateTime } from "@/utils/formatUtils";
 import { showDialog } from "@nutui/nutui";
 import { reactive } from "vue";
 import { gotoShowArticle, gotoShowComment } from "@/router";

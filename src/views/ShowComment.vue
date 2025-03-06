@@ -93,7 +93,7 @@ import { storeToRefs } from "pinia";
 import { computed, onMounted, reactive, ref } from "vue";
 import MyHead from "./MyHead.vue";
 import MyCard from "./MyCard.vue";
-import { formatDateTime } from "@/utils/formatUrils";
+import { formatDateTime } from "@/utils/formatUtils";
 import { gotoLogin } from "@/router";
 
 const showPop = ref(false);

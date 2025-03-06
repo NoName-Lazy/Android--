@@ -13,8 +13,8 @@ function decryptText(encoded_text: string) {
 function encryptObject(object: object) {
   return CryptoJS.AES.encrypt(JSON.stringify(object), KEY).toString();
 }
-function decryptObject(encoded_object: object) {
-  let bytes = CryptoJS.AES.decrypt(JSON.stringify(encoded_object), KEY);
+function decryptObject(encoded_string: string) {
+  let bytes = CryptoJS.AES.decrypt(encoded_string, KEY);
   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 }
 export const useUserStore = defineStore("userState", {
@@ -31,7 +31,7 @@ export const useUserStore = defineStore("userState", {
     };
   },
   getters: {
-    getDecodedPwd(): string {
+    getDecodedPwd(): any {
       return decryptText(this.passWord);
     },
   },
@@ -39,16 +39,16 @@ export const useUserStore = defineStore("userState", {
     setUser(userData: any) {
       this.user = userData;
     },
-    setToken(token: string) {
+    setToken(token: any) {
       this.token = token;
     },
-    setLoginState(isLogin: boolean) {
+    setLoginState(isLogin: any) {
       this.isLogin = isLogin;
     },
-    setUserName(name: string) {
+    setUserName(name: any) {
       this.userName = name;
     },
-    setPassword(pwd: string) {
+    setPassword(pwd: any) {
       this.passWord = pwd;
     },
     setUserDetail(userDetail: any) {
@@ -60,7 +60,7 @@ export const useUserStore = defineStore("userState", {
   persist: {
     serializer: {
       serialize: (state) => encryptObject(state),
-      deserialize: (data: Object) => decryptObject(data),
+      deserialize: (data: any) => decryptObject(data),
     },
   },
 });

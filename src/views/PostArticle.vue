@@ -18,9 +18,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
-import { url } from "inspector";
 import { storeToRefs } from "pinia";
-import { title } from "process";
 import { reactive, ref } from "vue";
 import MyHead from "./MyHead.vue";
 import { gotoLogin, replaceToShowArticle } from "@/router";

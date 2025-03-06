@@ -4,7 +4,6 @@
   </keep-alive>
   <nut-tabbar
     v-model="activeTab"
-    @tab-switch="tabSwitch"
     unactive-color="#505050"
     bottom
     safe-area-inset-bottom
@@ -54,17 +53,19 @@ const List = [
     name: "my",
   },
 ];
-onMounted(() => {
-  loginOnLaunch().catch((e) => {
-    console.log("loginOnLaunch", e);
-    gotoLogin();
-  });
-  // tabSwitch(null, activeTab.value);
-});
-const tabSwitch = (_: any, index: any) => {
-  console.log(index);
-  currentComponent.value = components[index];
-};
+// onMounted(() => {
+//   console.log("触发");
+
+//   loginOnLaunch().catch((e) => {
+//     console.log("loginOnLaunch: ", e);
+//     gotoLogin();
+//   });
+//   // tabSwitch(null, activeTab.value);
+// });
+// const tabSwitch = (_: any, index: any) => {
+//   console.log(index);
+//   currentComponent.value = components[index];
+// };
 watchEffect(() => {
   currentComponent.value = components[activeTab.value];
 });

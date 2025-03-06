@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { imageBaseUrl } from "@/stores/basic-data";
 import { computed, onMounted } from "vue";
-import { formatDateTime } from "@/utils/formatUrils";
+import { formatDateTime } from "@/utils/formatUtils";
 import {
   IconThumbUp,
   IconMessage,
