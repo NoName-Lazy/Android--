@@ -63,12 +63,15 @@ import {
   apiPostItemDetail,
 } from "@/utils/apiUtils";
 import ImageUploader from "@/views/ImageUploader.vue";
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
 
-const itemId = defineModel("itemId");
+const itemId: any = defineModel("itemId");
 const formData: any = defineModel("formData");
 const imgContents: any = defineModel("imgContents");
 const emits = defineEmits(["onSubmit"]);
+onMounted(() => {
+  console.log(formData);
+});
 function addImageContent() {
   let item = imgContents.value[-1];
   let orderValue = item?.order ? item.order + 1 : 0;
@@ -100,6 +103,7 @@ async function onImgContentSuccess(item: any, resObj: any) {
 }
 async function submitContent() {
   // console.log(formData);
+  console.log(itemId, formData.value, imgContents.value);
 
   let id = await apiPostItemDetail(itemId, formData.value, imgContents.value);
   console.log(submitContent.name, "id", id);

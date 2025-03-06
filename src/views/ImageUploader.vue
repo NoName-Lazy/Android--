@@ -20,6 +20,7 @@
     name="file"
     v-else
     :headers="headToken"
+    v-model:file-list="defaultFileList"
     @success="onImgSuccess"
     capture
     @delete="deleteImageByFileName"

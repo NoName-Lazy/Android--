@@ -112,6 +112,7 @@ const { itemData, error, isLoading }: any = apiGetItemById(
   refreshCount
 );
 function updateItemData() {
+  console.log("itemData", itemData);
   if (itemData.value) {
     formData.value.title = itemData.value.title;
     formData.value.description = itemData.value.description;

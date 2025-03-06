@@ -46,7 +46,7 @@ const imgContents = ref([
     id: 0,
   }),
 ]);
-function replaceView(id: any) {
+function replaceView(id:any) {
   console.log(replaceView.name, "id", id);
   replaceToShowArticle(id);
 }

@@ -338,7 +338,11 @@ export async function apiAddOrEditImageById(itemId: any, params: any) {
 
 export async function apiPostItemTitle(params: any) {
   try {
-    let res = await axiosClient.post("/items/", params);
+    console.log("params", params);
+
+    let res = await axiosClient.post(`/items/`, params);
+    console.log(res);
+
     return Promise.resolve(res?.data);
   } catch (error: any) {
     alertFail(apiPostItemTitle.name, error?.message);
@@ -490,11 +494,17 @@ export async function apiPostItemDetail(
   titleForm: any,
   imgContents: any
 ) {
-  console.log(titleForm);
+  console.log("titleForm", titleForm);
+  console.log("itemIdRef", itemIdRef);
+  console.log("imgContents", imgContents);
 
   let itemId = itemIdRef.value;
+  console.log("itemId", itemId);
+
   if (itemId == 0) {
     let item = await apiPostItemTitle(titleForm);
+    console.log("item", item);
+
     itemIdRef.value = item.id;
     itemId = item.id;
     console.log(
@@ -510,6 +520,8 @@ export async function apiPostItemDetail(
   }
   for (let i = 0; i < imgContents.length; i++) {
     let imgContent = imgContents[i];
+    console.log("imgContents", imgContents);
+
     await apiAddOrEditImageById(itemId, imgContent);
   }
   console.log("异步循环结束的itemIdRef", itemIdRef.value);
