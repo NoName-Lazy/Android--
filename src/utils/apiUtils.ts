@@ -261,6 +261,18 @@ export async function loginOnLaunch() {
   }
 }
 
+export async function apiGetAllItemDataByUUID(UUID: any) {
+  console.log(UUID);
+
+  try {
+    let res = await axiosClient.get("/items/users/" + UUID);
+    console.log(res);
+    return Promise.resolve(res);
+  } catch (error: any) {
+    showFail(apiGetAllItemDataByUUID.name, error?.message);
+  }
+}
+
 export function apiGetAllItemsByUserId(
   timeCounter: any,
   user_UUID: any,
@@ -357,6 +369,19 @@ export async function apiModifyItemTitle(itemId: any, params: any) {
     return Promise.resolve(res?.data);
   } catch (error: any) {
     alertFail(apiModifyItemTitle.name, error?.message);
+  }
+}
+
+export async function apiGetItemDataById(itemId: any) {
+  let itemData: any = ref(null);
+  try {
+    itemData = await axiosClient.get("/items/" + itemId);
+
+    // console.log(itemData);
+
+    return Promise.resolve(itemData);
+  } catch (e: any) {
+    alertFail(apiGetItemById.name, e?.message);
   }
 }
 

@@ -24,10 +24,17 @@
         />
       </div>
     </template>
-    <a-card-meta :title="props.title" :description="props.owner.name">
+    <a-card-meta
+      :title="props.title"
+      :description="props.owner.name"
+    >
       <template #avatar>
         <div class="avatar">
-          <a-avatar :size="24" :style="{ marginRight: '8px' }">
+          <a-avatar
+            :size="24"
+            :style="{ marginRight: '8px' }"
+            @click="gotoOtherArticle(props.id)"
+          >
             <img :src="avatarSrc" :alt="avatarAlter" />
           </a-avatar>
           <a-typography-text>{{ modify_time }}</a-typography-text>
@@ -47,6 +54,7 @@ import {
   IconMore,
   IconRedo,
 } from "@arco-design/web-vue/es/icon";
+import { gotoOtherArticle } from "@/router";
 
 const props = defineProps({
   src: String,

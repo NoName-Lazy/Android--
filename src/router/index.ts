@@ -7,6 +7,9 @@ import ShowComment from "@/views/ShowComment.vue";
 import ShowArticle from "@/views/ShowArticle.vue";
 import exp from "constants";
 import PostArticle from "@/views/PostArticle.vue";
+import path from "path";
+import OtherArticles from "@/views/OtherArticles.vue";
+import AllArticles from "@/views/AllArticles.vue";
 // import MyProfile from "@/views/TestImageuploader.vue";
 
 const routes = [
@@ -26,6 +29,12 @@ const routes = [
     name: "showArticle",
     component: ShowArticle,
   },
+  {
+    path: "/otherarticle/:id",
+    name: "otherArticle",
+    component: OtherArticles,
+  },
+  { path: "/allarticle", name: "allArticle", component: AllArticles },
 ];
 
 const router = createRouter({
@@ -60,11 +69,17 @@ export function gotoSettings() {
 export function gotoPostArticle() {
   router.push({ name: "postArticle" });
 }
+export function gotoAllArticle() {
+  router.push({ name: "allArticle" });
+}
 export function gotoShowComment(itemId: any) {
   router.push({ name: "showComment", params: { id: itemId } });
 }
 export function gotoShowArticle(itemId: any) {
   router.push({ name: "showArticle", params: { id: itemId } });
+}
+export function gotoOtherArticle(itemId: any) {
+  router.push({ name: "otherArticle", params: { id: itemId } });
 }
 export function replaceToShowArticle(itemId: any) {
   router.replace({ name: "showArticle", params: { id: itemId } });

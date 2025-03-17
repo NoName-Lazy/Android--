@@ -52,7 +52,7 @@ import {
 import { apiDeleteItemById } from "@/utils/apiUtils";
 import { formatDateTime } from "@/utils/formatUtils";
 import { showDialog } from "@nutui/nutui";
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import { gotoShowArticle, gotoShowComment } from "@/router";
 import { imageBaseUrl } from "@/stores/basic-data";
 
@@ -101,6 +101,10 @@ const onCancel = () => {
 function getTitleMeta(item: any) {
   return item.owner.name + " " + formatDateTime(item.modify_time, true);
 }
+
+onMounted(() => {
+  console.log(props);
+});
 </script>
 
 <style scoped>
