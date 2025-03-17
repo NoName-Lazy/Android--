@@ -1,6 +1,9 @@
 <template>
   <a-card :style="{ width: '96vw' }">
     <template #actions v-if="props.showMessage">
+      <span class="icon-hover" @click="onClickShowArticles">
+        <icon-redo />详情
+      </span>
       <span class="icon-hover" @click="onClickStar">
         <IconThumbUp />{{ props.star }}
       </span>
@@ -42,7 +45,9 @@ import {
   IconThumbUp,
   IconMessage,
   IconMore,
+  IconRedo,
 } from "@arco-design/web-vue/es/icon";
+
 const props = defineProps({
   src: String,
   title: String,
@@ -72,11 +77,17 @@ const modify_time = computed(() => {
   return formatDateTime(props.modify_time, true);
 });
 const emit = defineEmits([
+  "onClickShowArticles",
   "onClickStar",
   "onClickMoreActions",
   "onClickItem",
   "onClickComment",
 ]);
+
+const onClickShowArticles = () => {
+  emit("onClickShowArticles", props.id);
+};
+
 const onClickStar = () => {
   emit("onClickStar", props.id);
 };

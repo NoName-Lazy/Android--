@@ -35,6 +35,7 @@
         v-model:img-src="item.url"
         @onSuccess="(res) => onImgContentSuccess(item, res)"
       ></ImageUploader>
+
       <template #right>
         <nut-button
           type="danger"
@@ -42,8 +43,17 @@
           style="height: 100%"
           @click="() => deleteImageByItemId(item)"
           >删除</nut-button
-        >
-      </template>
+        > </template
+      ><nut-button type="primary" @click="moveUp(item)" size="small"
+        >上移</nut-button
+      >
+      <nut-button
+        type="primary"
+        @click="moveDown(item)"
+        size="small"
+        style="margin-left: 5px"
+        >下移</nut-button
+      >
     </nut-swipe>
   </nut-swipe-group>
   <nut-space :gutter="20" style="margin-top: 10px">
@@ -62,8 +72,10 @@ import {
   apiDeleteImageByPath,
   apiPostItemDetail,
 } from "@/utils/apiUtils";
+import { alertFail } from "@/utils/showMessage";
 import ImageUploader from "@/views/ImageUploader.vue";
-import { onMounted, reactive } from "vue";
+
+import { nextTick, onMounted, reactive, ref } from "vue";
 
 const itemId: any = defineModel("itemId");
 const formData: any = defineModel("formData");
@@ -102,12 +114,50 @@ async function onImgContentSuccess(item: any, resObj: any) {
   item.name = resObj.name;
 }
 async function submitContent() {
-  // console.log(formData);
-  console.log(itemId, formData.value, imgContents.value);
+  console.log("提交前的 imgContents:", imgContents.value);
+  try {
+    let id = await apiPostItemDetail(itemId, formData.value, imgContents.value);
+    console.log(submitContent.name, "id", id);
+    emits("onSubmit", id);
 
-  let id = await apiPostItemDetail(itemId, formData.value, imgContents.value);
-  console.log(submitContent.name, "id", id);
-  emits("onSubmit", id);
+    // 强制更新视图
+    await nextTick();
+  } catch (error) {
+    console.error("提交失败:", error);
+    alertFail(submitContent.name, "提交失败，请检查数据是否正确");
+  }
+}
+
+function moveUp(item: any) {
+  console.log(item);
+  let i = item.order;
+  let j = item.order - 1;
+  if (i != 0) {
+    let temp = imgContents.value[i];
+    imgContents.value[i] = imgContents.value[j];
+    imgContents.value[j] = temp;
+    imgContents.value[i].order = item.order;
+    imgContents.value[j].order = item.order - 1;
+    console.log(imgContents.value);
+  } else {
+    alertFail(moveUp.name, "已经是第一张图片了");
+  }
+}
+
+function moveDown(item: any) {
+  console.log(item);
+  let i = item.order;
+  let j = item.order + 1;
+  if (i != imgContents.value.length - 1) {
+    let temp = imgContents.value[i];
+    imgContents.value[i] = imgContents.value[j];
+    imgContents.value[j] = temp;
+    imgContents.value[i].order = item.order;
+    imgContents.value[j].order = item.order + 1;
+    console.log(imgContents.value);
+  } else {
+    alertFail(moveDown.name, "已经是最后一张图片了");
+  }
 }
 </script>
 

@@ -66,6 +66,9 @@ const List = [
 //   console.log(index);
 //   currentComponent.value = components[index];
 // };
+
+
+
 watchEffect(() => {
   currentComponent.value = components[activeTab.value];
 });

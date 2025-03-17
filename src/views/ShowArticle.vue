@@ -127,7 +127,10 @@ function updateItemData() {
     owner.name = itemData.value.owner.name;
     owner.avatar = imageBaseUrl + itemData.value.owner.avatar;
     isAuthor.value = itemData.value.owner_id == userStore.uuid;
-    imgContents.value = itemData.value.images.map((img: any) => reactive(img));
+
+    imgContents.value = itemData.value.images
+      .map((img: any) => reactive(img))
+      .sort((a: any, b: any) => a.order - b.order);
   }
 }
 updateItemData();
@@ -147,6 +150,8 @@ function setToEdit() {
 }
 async function setToPreview() {
   if (showEditContent.value) {
+    console.log(itemId, formData.value, imgContents.value);
+
     await apiPostItemDetail(itemId, formData.value, imgContents.value);
     refreshItem();
   }

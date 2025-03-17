@@ -1,4 +1,15 @@
 <template>
+  <nut-searchbar
+    v-model="searchVal"
+    @clear="clearFun"
+    @search="searchFun"
+    placeholder="搜索"
+  >
+    <template #rightin>
+      <Search2 @click="searchFun" />
+    </template>
+  </nut-searchbar>
+
   <nut-empty v-if="error" image="error" description="Error">
     <nut-cell>
       <nut-ellipsis
@@ -18,6 +29,7 @@
       >Refresh</nut-button
     >
   </nut-empty>
+
   <div v-if="allList" class="center">
     <nut-infinite-loading
       v-model="isLoading"
@@ -33,21 +45,23 @@
       >
         <nut-pull-refresh v-model="isLoading" @refresh="refreshFun">
           <MyCard
-            v-for="[k, item] in allList"
+            v-for="[k, item] in filteredList"
             :key="k"
             v-bind="item"
             @onClickStar="(id) => clickStar(id)"
             @onClickComment="gotoShowComment(item.id)"
+            @onClickShowArticles="gotoShowArticle(item.id)"
           ></MyCard>
         </nut-pull-refresh>
       </nut-space>
       <nut-space v-else direction="vertical" align="center" fill>
         <MyCard
-          v-for="[k, item] in allList"
+          v-for="[k, item] in filteredList"
           :key="k"
           v-bind="item"
           @onClickStar="(id) => clickStar(id)"
           @onClickComment="gotoShowComment(item.id)"
+          @onClickShowArticles="gotoShowArticle(item.id)"
         ></MyCard>
       </nut-space>
     </nut-infinite-loading>
@@ -55,18 +69,28 @@
 </template>
 
 <script setup lang="ts">
-import { apiAddItemStar, apiGetAllItemsRefresh } from "@/utils/apiUtils";
+import {
+  apiAddItemStar,
+  apiGetAllItemsByUserId,
+  apiGetAllItemsRefresh,
+  apiGetCommentsByItemId,
+  apiGetMyComments,
+} from "@/utils/apiUtils";
 import { computed, onActivated, ref, watch } from "vue";
 import MyCard from "./MyCard.vue";
 import { useCounterStore } from "@/stores/counter-store";
 import { storeToRefs } from "pinia";
 import { useScrollPos } from "@/utils/scrollUtils";
-import { gotoShowComment } from "@/router";
+import { gotoShowArticle, gotoShowComment } from "@/router";
+import { Search2 } from "@nutui/icons-vue";
+
+const searchVal = ref("");
 
 const counterStore = useCounterStore();
 const counterRefObj = storeToRefs(counterStore);
-const counterRef = ref(counterRefObj.articleCounter);
+const counterRef: any = ref(counterRefObj.articleCounter);
 const counterEnableRef = ref(counterRefObj.articleCounterEnabled.value);
+const counter = ref(1);
 const hasMore = ref(true);
 const currentPage = ref(0);
 var pageSize = 5;
@@ -75,27 +99,53 @@ const q = computed(() => {
   let offset = pageSize * currentPage.value;
   return `skip=${offset}&limit=${pageSize}`;
 });
+
 const allList = ref(new Map());
 const { list, error, isLoading } = apiGetAllItemsRefresh(counterRef, q);
+
+const filteredList = computed(() => {
+  // console.log(allList);
+
+  if (!searchVal.value) return allList.value;
+  const searchLower = searchVal.value.toLowerCase();
+  return new Map(
+    [...allList.value].filter(([k, item]) => {
+      // console.log(item);
+      const id = item.id;
+      const commentCount = counterRefObj.commentCounter;
+      const { comments, error, isLoading } = apiGetCommentsByItemId(
+        commentCount,
+        id
+      );
+      // console.log(id, commentCount, comments);
+      
+      const titleMatch = item.title.toLowerCase().includes(searchLower);
+      const contentMatch = item.content.toLowerCase().includes(searchLower);
+      const commentMatch = comments?.some((comment: any) =>
+        comment.text.toLowerCase().includes(searchLower)
+      );
+
+      return titleMatch || contentMatch || commentMatch;
+    })
+  );
+});
+
 function loadMore() {
   pageSize = DEFAULT_PAGE_SIZE;
   currentPage.value++;
 }
+
 function scrollChange(v: any) {
   console.log(`v=${v},currentPage=${currentPage.value}`);
 }
-watch(list, () => {
-  // console.log(list.value);
 
+watch(list, () => {
   if (list.value && list.value.length > 0) {
     list.value.forEach((item: any) => {
-      // console.log(allList.value.has(item.id));
       if (allList.value.has(item.id)) {
         Object.assign(allList.value.get(item.id), item);
-        // console.log(allList.value.get(item.id));
       } else {
         allList.value.set(item.id, item);
-        console.log(allList.value);
       }
     });
     hasMore.value = true;
@@ -103,19 +153,27 @@ watch(list, () => {
     hasMore.value = false;
   }
 });
+
 watch(counterRef, () => {
   pageSize = (currentPage.value + 1) * DEFAULT_PAGE_SIZE;
   currentPage.value = 0;
 });
+
 onActivated(() => {
   refreshFun();
 });
+
 useScrollPos();
 
 function refreshFun() {
-  // counterRef.value++;
   counterStore.incrementArticleCounter();
 }
+
+function clearFun() {
+  searchVal.value = "";
+}
+
+function searchFun() {}
 
 async function clickStar(id: any) {
   let data = await apiAddItemStar(id);
