@@ -1,11 +1,22 @@
 <template>
+  <nut-searchbar
+    v-model="searchKeyword"
+    @clear="clearFun"
+    @search="searchFun"
+    placeholder="搜索"
+  >
+    <template #rightin>
+      <Search2 @click="searchFun" />
+    </template>
+  </nut-searchbar>
+
   <ErrorState
     :error="error"
     :isLoading="isLoading"
     @refreshFun="refreshFun"
   ></ErrorState>
   <a-list>
-    <a-list-item v-for="c in comments" :key="c.id">
+    <a-list-item v-for="c in filteredComments" :key="c.id">
       <a-list-item-meta
         :title="c.item.title"
         @click="gotoShowComment(c.item_id)"
@@ -43,17 +54,33 @@ import { useUserStore } from "@/stores/user";
 import { apiDeleteCommentById, apiGetMyComments } from "@/utils/apiUtils";
 import { showDialog } from "@nutui/nutui";
 import { storeToRefs } from "pinia";
-import { onActivated, ref } from "vue";
+import { onActivated, ref, computed } from "vue";
 import ErrorState from "./ErrorState.vue";
 import { gotoLogin, gotoShowComment, gotoShowArticle } from "@/router";
 import { formatDateTime } from "@/utils/formatUtils";
 import { imageBaseUrl } from "@/stores/basic-data";
+import { IconBook, IconDelete } from "@arco-design/web-vue/es/icon";
 
 const counter = ref(1);
 const { comments, error, isLoading }: any = apiGetMyComments(counter);
 const userState = useUserStore();
 const userRef = storeToRefs(userState);
 const isLogin = ref(userRef.isLogin);
+
+const searchKeyword = ref("");
+
+const filteredComments = computed(() => {
+  if (!searchKeyword.value) {
+    return comments.value;
+  }
+  const keyword = searchKeyword.value.toLowerCase();
+  return comments.value.filter((c: any) => {
+    const contentMatch = c.content.toLowerCase().includes(keyword);
+    const titleMatch = c.item.title.toLowerCase().includes(keyword);
+    return contentMatch || titleMatch;
+  });
+});
+
 async function deleteComment(c: any) {
   const onOk = async () => {
     await apiDeleteCommentById(c.id);
@@ -66,9 +93,17 @@ async function deleteComment(c: any) {
     onOk,
   });
 }
+
 function refreshFun() {
   counter.value++;
 }
+
+function clearFun() {
+  searchKeyword.value = "";
+}
+
+function searchFun() {}
+
 onActivated(() => {
   refreshFun();
 });
@@ -79,5 +114,9 @@ onActivated(() => {
   display: flex;
   justify-content: center;
   margin-top: 10px;
+}
+
+.search-box {
+  margin-bottom: 20px;
 }
 </style>

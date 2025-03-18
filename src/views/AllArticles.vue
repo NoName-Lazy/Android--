@@ -118,7 +118,7 @@ const filteredList = computed(() => {
         id
       );
       // console.log(id, commentCount, comments);
-      
+
       const titleMatch = item.title.toLowerCase().includes(searchLower);
       const contentMatch = item.content.toLowerCase().includes(searchLower);
       const commentMatch = comments?.some((comment: any) =>
