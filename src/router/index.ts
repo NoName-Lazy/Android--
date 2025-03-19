@@ -5,11 +5,13 @@ import MyHome from "@/views/MyHome.vue";
 import MySettings from "@/views/MySettings.vue";
 import ShowComment from "@/views/ShowComment.vue";
 import ShowArticle from "@/views/ShowArticle.vue";
-import exp from "constants";
 import PostArticle from "@/views/PostArticle.vue";
-import path from "path";
 import OtherArticles from "@/views/OtherArticles.vue";
 import AllArticles from "@/views/AllArticles.vue";
+import path from "path";
+import MyComments from "@/views/MyComments.vue";
+import MyArticles from "@/views/MyArticles.vue";
+
 // import MyProfile from "@/views/TestImageuploader.vue";
 
 const routes = [
@@ -18,6 +20,8 @@ const routes = [
   { path: "/register", name: "register", component: MyRegister },
   { path: "/settings", name: "settings", component: MySettings },
   { path: "/post-article", name: "postArticle", component: PostArticle },
+  { path: "/mycomment", name: "myComment", component: MyComments },
+  { path: "/myarticle", name: "myArticle", component: MyArticles },
   {
     path: "/show-comment/:id",
     name: "showComment",
@@ -34,7 +38,11 @@ const routes = [
     name: "otherArticle",
     component: OtherArticles,
   },
-  { path: "/allarticle", name: "allArticle", component: AllArticles },
+  {
+    path: "/allarticle",
+    name: "allArticle",
+    component: AllArticles,
+  },
 ];
 
 const router = createRouter({
@@ -80,6 +88,12 @@ export function gotoShowArticle(itemId: any) {
 }
 export function gotoOtherArticle(itemId: any) {
   router.push({ name: "otherArticle", params: { id: itemId } });
+}
+export function gotoMyComments() {
+  router.push({ name: "myComment" });
+}
+export function gotoMyArticles() {
+  router.push({ name: "myArticle" });
 }
 export function replaceToShowArticle(itemId: any) {
   router.replace({ name: "showArticle", params: { id: itemId } });

@@ -89,8 +89,15 @@ import {
   apiRenameMe,
 } from "@/utils/apiUtils";
 import { storeToRefs } from "pinia";
-import { gotoBack, gotoSettings, gotoLogin as login } from "@/router";
-import { onActivated, onMounted, reactive, ref } from "vue";
+import router, {
+  gotoAllArticle,
+  gotoBack,
+  gotoHome,
+  gotoMyComments,
+  gotoSettings,
+  gotoLogin as login,
+} from "@/router";
+import { inject, onActivated, onMounted, reactive, ref } from "vue";
 import { imageBaseUrl } from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
 const userStore = useUserStore();
@@ -115,6 +122,8 @@ const pwdView = ref(false);
 const newPwd = ref(userStore.getDecodedPwd);
 const inputTypes = ["password", "text"];
 const pwdStyle: any = ref(inputTypes[0]);
+const activeTab: any = inject("activeTab");
+
 async function modifyProfile() {
   console.log(renameData);
 
@@ -163,9 +172,14 @@ async function getProfileDetail() {
     console.log(renameData);
   }
 }
+function gotoMyArticles() {
+  activeTab.value = 1;
+}
 
-function gotoMyArticles() {}
-function gotoMycomments() {}
+function gotoMycomments() {
+  activeTab.value = 2;
+}
+
 onMounted(() => {
   if (userStore.isLogin) {
     getProfileDetail();

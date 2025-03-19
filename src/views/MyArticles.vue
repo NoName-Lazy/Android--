@@ -29,7 +29,7 @@ import { useUserStore } from "@/stores/user";
 import { apiGetAllItemsByUserId } from "@/utils/apiUtils";
 import { useScrollPos } from "@/utils/scrollUtils";
 import { storeToRefs } from "pinia";
-import { onActivated, ref } from "vue";
+import { onActivated, onMounted, ref } from "vue";
 import ErrorState from "./ErrorState.vue";
 import ArticleList from "@/components/ArticleList.vue";
 import { gotoLogin, gotoPostArticle } from "@/router";
@@ -63,6 +63,10 @@ function searchFun() {
   console.log("search", searchValCommit.value);
 }
 onActivated(() => {
+  refresh();
+});
+
+onMounted(() => {
   refresh();
 });
 </script>

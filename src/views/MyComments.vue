@@ -54,13 +54,13 @@ import { useUserStore } from "@/stores/user";
 import { apiDeleteCommentById, apiGetMyComments } from "@/utils/apiUtils";
 import { showDialog } from "@nutui/nutui";
 import { storeToRefs } from "pinia";
-import { onActivated, ref, computed } from "vue";
+import { onActivated, ref, computed, onMounted } from "vue";
 import ErrorState from "./ErrorState.vue";
 import { gotoLogin, gotoShowComment, gotoShowArticle } from "@/router";
 import { formatDateTime } from "@/utils/formatUtils";
 import { imageBaseUrl } from "@/stores/basic-data";
 import { IconBook, IconDelete } from "@arco-design/web-vue/es/icon";
-
+import { Search2 } from "@nutui/icons-vue";
 const counter = ref(1);
 const { comments, error, isLoading }: any = apiGetMyComments(counter);
 const userState = useUserStore();
@@ -105,6 +105,9 @@ function clearFun() {
 function searchFun() {}
 
 onActivated(() => {
+  refreshFun();
+});
+onMounted(() => {
   refreshFun();
 });
 </script>

@@ -28,12 +28,14 @@ export const useUserStore = defineStore("userState", {
       isLogin: false,
       userName: "aa@wzu.edu.cn",
       passWord: "",
+   
     };
   },
   getters: {
     getDecodedPwd(): any {
       return decryptText(this.passWord);
     },
+
   },
   actions: {
     setUser(userData: any) {
@@ -56,6 +58,7 @@ export const useUserStore = defineStore("userState", {
       this.nickName = userDetail?.name ?? "";
       this.uuid = userDetail?.uuid ?? "";
     },
+ 
   },
   persist: {
     serializer: {

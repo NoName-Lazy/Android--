@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, ref, watchEffect } from "vue";
+import { h, onMounted, provide, ref, watch, watchEffect } from "vue";
 import AllArticles from "./AllArticles.vue";
 import MyArticles from "./MyArticles.vue";
 import MyComments from "./MyComments.vue";
@@ -28,8 +28,11 @@ import { shallowRef } from "vue";
 import { Comment, Find, Home, My } from "@nutui/icons-vue";
 import { loginOnLaunch } from "@/utils/apiUtils";
 import { gotoLogin } from "@/router";
+import { useUserStore } from "@/stores/user";
+const userStore = useUserStore();
 const components = [AllArticles, MyArticles, MyComments, MyProfile];
 const activeTab = ref(1);
+provide("activeTab", activeTab);
 const currentComponent = shallowRef(components[activeTab.value]);
 const List = [
   {
@@ -66,8 +69,6 @@ const List = [
 //   console.log(index);
 //   currentComponent.value = components[index];
 // };
-
-
 
 watchEffect(() => {
   currentComponent.value = components[activeTab.value];
