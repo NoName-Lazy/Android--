@@ -24,10 +24,7 @@
         />
       </div>
     </template>
-    <a-card-meta
-      :title="props.title"
-      :description="props.owner.name"
-    >
+    <a-card-meta :title="props.title" :description="props.owner.name">
       <template #avatar>
         <div class="avatar">
           <a-avatar
@@ -93,7 +90,7 @@ const emit = defineEmits([
 ]);
 
 const onClickShowArticles = () => {
-  emit("onClickShowArticles", props.id);
+  emit("onClickShowArticles", props.id, props.title);
 };
 
 const onClickStar = () => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { alertFail, showFail, showSuccess } from "./showMessage";
+import { alertFail, alertSuccess, showFail, showSuccess } from "./showMessage";
 import { useUserStore } from "@/stores/user";
 import qs from "qs";
 import { baseUrl } from "@/stores/basic-data";
@@ -474,14 +474,41 @@ export async function apiPostComment(itemId: any, params: any) {
     alertFail(apiPostComment.name, error?.message);
   }
 }
-export async function apiAddItemStar(itemId: any) {
+export async function apiItemStar(
+  itemId: number,
+  uuid: string,
+  itemtitle: string
+) {
+  const findData = {
+    item_id: itemId,
+    uuid: uuid,
+  };
+  const addData = {
+    item_id: itemId,
+    uuid: uuid,
+    item_title: itemtitle,
+  };
+
   try {
-    let res = await axiosClient.post("/items/put/addstar/" + itemId);
-    return Promise.resolve(res?.data);
+    const flag = await axiosClient.get("/items/users/star", {
+      params: findData,
+    });
+    console.log(flag.data);
+
+    if (flag.data) {
+      await axiosClient.delete("/deletestar", { params: findData });
+      return alertSuccess(apiItemStar.name, "取消点赞成功");
+    } else {
+      console.log(addData);
+
+      const res = await axiosClient.post(`/addstar`, addData);
+      return Promise.resolve(res?.data);
+    }
   } catch (error: any) {
-    alertFail(apiAddItemStar.name, error?.message);
+    alertFail(apiItemStar.name, error?.message || "请求失败");
   }
 }
+
 export function apiGetMyComments(counter = ref(1)) {
   const comments: any = ref(null);
   const error = ref(null);
@@ -551,4 +578,12 @@ export async function apiPostItemDetail(
   }
   console.log("异步循环结束的itemIdRef", itemIdRef.value);
   return Promise.resolve(itemId);
+}
+
+export async function apiFindStar(findData: { item_id: number; uuid: string }) {
+  try {
+    let res = await axiosClient.get("/items/users/star", { params: findData });
+    // console.log(res);
+    return res;
+  } catch (error: any) {}
 }

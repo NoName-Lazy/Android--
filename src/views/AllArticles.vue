@@ -48,7 +48,7 @@
             v-for="[k, item] in filteredList"
             :key="k"
             v-bind="item"
-            @onClickStar="(id) => clickStar(id)"
+            @onClickStar="(id, title) => clickStar(id, title)"
             @onClickComment="gotoShowComment(item.id)"
             @onClickShowArticles="gotoShowArticle(item.id)"
           ></MyCard>
@@ -59,7 +59,7 @@
           v-for="[k, item] in filteredList"
           :key="k"
           v-bind="item"
-          @onClickStar="(id) => clickStar(id)"
+          @onClickStar="(id) => clickStar(id, item.title)"
           @onClickComment="gotoShowComment(item.id)"
           @onClickShowArticles="gotoShowArticle(item.id)"
         ></MyCard>
@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import {
-  apiAddItemStar,
+  apiItemStar,
   apiGetAllItemsByUserId,
   apiGetAllItemsRefresh,
   apiGetCommentsByItemId,
@@ -83,9 +83,10 @@ import { storeToRefs } from "pinia";
 import { useScrollPos } from "@/utils/scrollUtils";
 import { gotoShowArticle, gotoShowComment } from "@/router";
 import { Search2 } from "@nutui/icons-vue";
+import { useUserStore } from "@/stores/user";
 
 const searchVal = ref("");
-
+const userStore = useUserStore();
 const counterStore = useCounterStore();
 const counterRefObj = storeToRefs(counterStore);
 const counterRef: any = ref(counterRefObj.articleCounter);
@@ -175,8 +176,10 @@ function clearFun() {
 
 function searchFun() {}
 
-async function clickStar(id: any) {
-  let data = await apiAddItemStar(id);
+async function clickStar(id: any, itemtitle: any) {
+  let data = await apiItemStar(id, userStore.uuid, itemtitle);
+  console.log(data);
+
   if (data) {
     Object.assign(allList.value.get(id), data);
   }
