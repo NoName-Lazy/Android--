@@ -1,67 +1,70 @@
 <template>
   <nut-searchbar
-    v-model="searchVal"
-    @clear="clearFun"
-    @search="searchFun"
-    placeholder="搜索"
+      v-model="searchVal"
+      @clear="clearFun"
+      @search="searchFun"
+      placeholder="搜索"
   >
     <template #rightin>
-      <Search2 @click="searchFun" />
+      <Search2 @click="searchFun"/>
     </template>
   </nut-searchbar>
 
   <nut-empty v-if="error" image="error" description="Error">
     <nut-cell>
       <nut-ellipsis
-        :content="error"
-        direction="end"
-        expand-text="展开"
-        rows="3"
-        class="my-ellipsis"
-        collapse-text="收起"
+          :content="error"
+          direction="end"
+          expand-text="展开"
+          rows="3"
+          class="my-ellipsis"
+          collapse-text="收起"
       ></nut-ellipsis>
     </nut-cell>
     <nut-button
-      type="primary"
-      style="margin-top: 5px"
-      :loading="isLoading"
-      @click="refreshFun"
-      >Refresh</nut-button
+        type="primary"
+        style="margin-top: 5px"
+        :loading="isLoading"
+        @click="refreshFun"
+    >Refresh
+    </nut-button
     >
   </nut-empty>
 
   <div v-if="allList" class="center">
     <nut-infinite-loading
-      v-model="isLoading"
-      :has-more="hasMore"
-      @scroll-change="scrollChange"
-      @load-more="loadMore"
+        v-model="isLoading"
+        :has-more="hasMore"
+        @scroll-change="scrollChange"
+        @load-more="loadMore"
     >
       <nut-space
-        v-if="!counterEnableRef"
-        direction="vertical"
-        align="center"
-        fill
+          v-if="!counterEnableRef"
+          direction="vertical"
+          align="center"
+          fill
       >
         <nut-pull-refresh v-model="isLoading" @refresh="refreshFun">
           <MyCard
-            v-for="[k, item] in filteredList"
-            :key="k"
-            v-bind="item"
-            @onClickStar="(id, title) => clickStar(id, title)"
-            @onClickComment="gotoShowComment(item.id)"
-            @onClickShowArticles="gotoShowArticle(item.id)"
+              :starlist=starlist
+              v-for="[k, item] in filteredList"
+              :key="k"
+              v-bind="item"
+              @onClickStar="(id) => clickStar(id, item.title)"
+              @onClickComment="gotoShowComment(item.id)"
+              @onClickShowArticles="gotoShowArticle(item.id)"
           ></MyCard>
         </nut-pull-refresh>
       </nut-space>
       <nut-space v-else direction="vertical" align="center" fill>
         <MyCard
-          v-for="[k, item] in filteredList"
-          :key="k"
-          v-bind="item"
-          @onClickStar="(id) => clickStar(id, item.title)"
-          @onClickComment="gotoShowComment(item.id)"
-          @onClickShowArticles="gotoShowArticle(item.id)"
+            :starlist=starlist
+            v-for="[k, item] in filteredList"
+            :key="k"
+            v-bind="item"
+            @onClickStar="(id) => clickStar(id, item.title)"
+            @onClickComment="gotoShowComment(item.id)"
+            @onClickShowArticles="gotoShowArticle(item.id)"
         ></MyCard>
       </nut-space>
     </nut-infinite-loading>
@@ -74,16 +77,16 @@ import {
   apiGetAllItemsByUserId,
   apiGetAllItemsRefresh,
   apiGetCommentsByItemId,
-  apiGetMyComments,
+  apiGetMyComments, apiFindStarByUUID,
 } from "@/utils/apiUtils";
-import { computed, onActivated, ref, watch } from "vue";
+import {computed, onActivated, onMounted, ref, watch} from "vue";
 import MyCard from "./MyCard.vue";
-import { useCounterStore } from "@/stores/counter-store";
-import { storeToRefs } from "pinia";
-import { useScrollPos } from "@/utils/scrollUtils";
-import { gotoShowArticle, gotoShowComment } from "@/router";
-import { Search2 } from "@nutui/icons-vue";
-import { useUserStore } from "@/stores/user";
+import {useCounterStore} from "@/stores/counter-store";
+import {storeToRefs} from "pinia";
+import {useScrollPos} from "@/utils/scrollUtils";
+import {gotoShowArticle, gotoShowComment} from "@/router";
+import {Search2} from "@nutui/icons-vue";
+import {useUserStore} from "@/stores/user";
 
 const searchVal = ref("");
 const userStore = useUserStore();
@@ -102,32 +105,32 @@ const q = computed(() => {
 });
 
 const allList = ref(new Map());
-const { list, error, isLoading } = apiGetAllItemsRefresh(counterRef, q);
-
+const {list, error, isLoading} = apiGetAllItemsRefresh(counterRef, q);
+const starlist = ref<any[]>([]);
 const filteredList = computed(() => {
   // console.log(allList);
 
   if (!searchVal.value) return allList.value;
   const searchLower = searchVal.value.toLowerCase();
   return new Map(
-    [...allList.value].filter(([k, item]) => {
-      // console.log(item);
-      const id = item.id;
-      const commentCount = counterRefObj.commentCounter;
-      const { comments, error, isLoading } = apiGetCommentsByItemId(
-        commentCount,
-        id
-      );
-      // console.log(id, commentCount, comments);
+      [...allList.value].filter(([k, item]) => {
+        // console.log(item);
+        const id = item.id;
+        const commentCount = counterRefObj.commentCounter;
+        const {comments, error, isLoading} = apiGetCommentsByItemId(
+            commentCount,
+            id
+        );
+        // console.log(id, commentCount, comments);
 
-      const titleMatch = item.title.toLowerCase().includes(searchLower);
-      const contentMatch = item.content.toLowerCase().includes(searchLower);
-      const commentMatch = comments?.some((comment: any) =>
-        comment.text.toLowerCase().includes(searchLower)
-      );
+        const titleMatch = item.title.toLowerCase().includes(searchLower);
+        const contentMatch = item.content.toLowerCase().includes(searchLower);
+        const commentMatch = comments?.some((comment: any) =>
+            comment.text.toLowerCase().includes(searchLower)
+        );
 
-      return titleMatch || contentMatch || commentMatch;
-    })
+        return titleMatch || contentMatch || commentMatch;
+      })
   );
 });
 
@@ -174,16 +177,48 @@ function clearFun() {
   searchVal.value = "";
 }
 
-function searchFun() {}
+function searchFun() {
+}
 
 async function clickStar(id: any, itemtitle: any) {
-  let data = await apiItemStar(id, userStore.uuid, itemtitle);
-  console.log(data);
+  console.log(id, itemtitle);
+  try {
+    const data = await apiItemStar(id, userStore.uuid, itemtitle);
+    console.log(data);
 
-  if (data) {
-    Object.assign(allList.value.get(id), data);
+    if (data) {
+      // 更新 allList 中对应 item 的数据
+      const updatedItem = allList.value.get(id);
+      if (updatedItem) {
+        Object.assign(updatedItem, data); // 假设 data 是更新后的 item 数据
+        allList.value.set(id, updatedItem);
+      }
+
+      // 更新 starlist
+      console.log(starlist.value)
+      const isStarred = starlist.value.data.some((star: any) => star.item_id === id);
+      if (isStarred) {
+        // 取消点赞，从 starlist 中移除
+        starlist.value = starlist.value.data.filter((star: any) => star.item_id !== id);
+      } else {
+        // 点赞，添加到 starlist
+        starlist.value.data.push({item_id: id});
+      }
+    }
+  } catch (error) {
+    console.error("点赞失败:", error);
   }
 }
+
+async function FindStar() {
+  const data = await apiFindStarByUUID();
+  starlist.value = data;
+  console.log(starlist)
+}
+
+onMounted(() => {
+  FindStar();
+})
 </script>
 
 <style scoped>
@@ -191,6 +226,7 @@ async function clickStar(id: any, itemtitle: any) {
   display: block;
   justify-content: center;
 }
+
 .my-ellipsis {
   overflow-wrap: break-word;
   word-wrap: break-word;

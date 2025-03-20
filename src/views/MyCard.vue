@@ -2,25 +2,28 @@
   <a-card :style="{ width: '96vw' }">
     <template #actions v-if="props.showMessage">
       <span class="icon-hover" @click="onClickShowArticles">
-        <icon-redo />详情
+        <icon-redo/>详情
       </span>
-      <span class="icon-hover" @click="onClickStar">
-        <IconThumbUp />{{ props.star }}
+      <span v-if="isStarred" class="icon-hover" @click="onClickStar">
+        <HeartFill/>{{ props.star }}
+      </span>
+      <span v-else class="icon-hover" @click="onClickStar">
+        <IconThumbUp/>{{ props.star }}
       </span>
       <span class="icon-hover" @click="onClickMessage">
-        <IconMessage />{{ props.comment_count }}
+        <IconMessage/>{{ props.comment_count }}
       </span>
       <span class="icon-hover" @click="onClickMore">
-        <IconMore />
+        <IconMore/>
       </span>
     </template>
     <template #cover>
       <div class="cover">
         <img
-          :src="imageSrc"
-          alt="cover"
-          class="cover-img"
-          @click="onClickItem"
+            :src="imageSrc"
+            alt="cover"
+            class="cover-img"
+            @click="onClickItem"
         />
       </div>
     </template>
@@ -28,11 +31,11 @@
       <template #avatar>
         <div class="avatar">
           <a-avatar
-            :size="24"
-            :style="{ marginRight: '8px' }"
-            @click="gotoOtherArticle(props.id)"
+              :size="24"
+              :style="{ marginRight: '8px' }"
+              @click="gotoOtherArticle(props.id)"
           >
-            <img :src="avatarSrc" :alt="avatarAlter" />
+            <img :src="avatarSrc" :alt="avatarAlter"/>
           </a-avatar>
           <a-typography-text>{{ modify_time }}</a-typography-text>
         </div>
@@ -42,16 +45,21 @@
 </template>
 
 <script setup lang="ts">
-import { imageBaseUrl } from "@/stores/basic-data";
-import { computed, onMounted } from "vue";
-import { formatDateTime } from "@/utils/formatUtils";
+import {imageBaseUrl} from "@/stores/basic-data";
+import {computed, onActivated, onMounted, ref} from "vue";
+import {formatDateTime} from "@/utils/formatUtils";
 import {
   IconThumbUp,
   IconMessage,
   IconMore,
   IconRedo,
 } from "@arco-design/web-vue/es/icon";
-import { gotoOtherArticle } from "@/router";
+import {HeartFill} from "@nutui/icons-vue"
+import {gotoOtherArticle} from "@/router";
+import {useUserStore} from "@/stores/user.ts";
+import {apiFindStar, apiFindStarByUUID} from "@/utils/apiUtils.ts";
+
+const userStore = useUserStore();
 
 const props = defineProps({
   src: String,
@@ -76,6 +84,19 @@ const props = defineProps({
       };
     },
   },
+  starlist: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+const isStarred = computed(() => {
+  console.log(props.starlist)
+  if (!Array.isArray(props.starlist)) {
+    console.error('starlist 不是一个数组:', props.starlist);
+    return false;
+  }
+  return props.starlist.some((star: any) => star.item_id === props.id);
 });
 
 const modify_time = computed(() => {
@@ -114,6 +135,8 @@ const avatarSrc = computed(() => {
 const imageSrc = computed(() => {
   return imageBaseUrl + props.src;
 });
+
+
 onMounted(() => {
   console.log("MyCard", props);
 });
@@ -129,20 +152,24 @@ onMounted(() => {
   border-radius: 50%;
   transition: all 0.1s;
 }
+
 .icon-hover:hover {
   background-color: rgb(var(--gray-2));
 }
+
 .cover {
   height: 204px;
   overflow: hidden;
   justify-content: center;
   display: flex;
 }
+
 .cover-img {
   width: 92%;
   transform: translateY(10px);
   margin: auto;
 }
+
 .avatar {
   display: flex;
   align-items: center;
