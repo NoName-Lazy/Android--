@@ -91,12 +91,11 @@ const props = defineProps({
 });
 
 const isStarred = computed(() => {
-  console.log(props.starlist)
-  if (!Array.isArray(props.starlist)) {
+  if (!Array.isArray(props.starlist?.data)) {
     console.error('starlist 不是一个数组:', props.starlist);
     return false;
   }
-  return props.starlist.some((star: any) => star.item_id === props.id);
+  return props.starlist?.data.some((star: any) => star.item_id === props.id);
 });
 
 const modify_time = computed(() => {

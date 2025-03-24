@@ -48,9 +48,9 @@
           <MyCard
               :starlist=starlist
               v-for="[k, item] in filteredList"
-              :key="k"
+              :key="item.id + '-' + item.star"
               v-bind="item"
-              @onClickStar="(id) => clickStar(id, item.title)"
+              @onClickStar="(id) => clickStar(id, item.title,item.star)"
               @onClickComment="gotoShowComment(item.id)"
               @onClickShowArticles="gotoShowArticle(item.id)"
           ></MyCard>
@@ -60,9 +60,9 @@
         <MyCard
             :starlist=starlist
             v-for="[k, item] in filteredList"
-            :key="k"
+            :key="item.id + '-' + item.star"
             v-bind="item"
-            @onClickStar="(id) => clickStar(id, item.title)"
+            @onClickStar="(id) => clickStar(id, item.title,item.star)"
             @onClickComment="gotoShowComment(item.id)"
             @onClickShowArticles="gotoShowArticle(item.id)"
         ></MyCard>
@@ -163,6 +163,10 @@ watch(counterRef, () => {
   currentPage.value = 0;
 });
 
+watch(starlist, (newVal) => {
+  console.log('starlist updated:', newVal)
+}, {deep: true});
+
 onActivated(() => {
   refreshFun();
 });
@@ -180,38 +184,38 @@ function clearFun() {
 function searchFun() {
 }
 
-async function clickStar(id: any, itemtitle: any) {
+async function clickStar(id: any, itemtitle: any, itemstar: any) {
   console.log(id, itemtitle);
-  try {
-    const data = await apiItemStar(id, userStore.uuid, itemtitle);
-    console.log(data);
+  let data = await apiItemStar(id, userStore.uuid, itemtitle);
+  // console.log(data)
+  if (data != null) {
 
-    if (data) {
-      // 更新 allList 中对应 item 的数据
-      const updatedItem = allList.value.get(id);
-      if (updatedItem) {
-        Object.assign(updatedItem, data); // 假设 data 是更新后的 item 数据
-        allList.value.set(id, updatedItem);
-      }
-
-      // 更新 starlist
-      console.log(starlist.value)
-      const isStarred = starlist.value.data.some((star: any) => star.item_id === id);
-      if (isStarred) {
-        // 取消点赞，从 starlist 中移除
-        starlist.value = starlist.value.data.filter((star: any) => star.item_id !== id);
-      } else {
-        // 点赞，添加到 starlist
-        starlist.value.data.push({item_id: id});
-      }
-    }
-  } catch (error) {
-    console.error("点赞失败:", error);
+    const updatedItem = allList.value.get(id);
+    // console.log(starlist.value.data)
+    updatedItem.star = itemstar + 1;
+    allList.value.set(id, updatedItem);
+  } else {
+    const updatedItem = allList.value.get(id);
+    // console.log(starlist.value.data)
+    updatedItem.star = itemstar - 1;
+    allList.value.set(id, updatedItem);
   }
+
+  const starIndex = starlist.value.data.findIndex((star: any) => star.item_id === id);
+
+  if (starIndex !== -1) {
+    // 取消点赞：从 starlist 中移除该项
+    starlist.value.data.splice(starIndex, 1);
+  } else {
+    // 点赞：添加到 starlist
+    starlist.value.data.push({ item_id: id, star: 1 }); // 确保 star 有初始值
+  }
+  refreshFun();
 }
 
+
 async function FindStar() {
-  const data = await apiFindStarByUUID();
+  const data: any = await apiFindStarByUUID();
   starlist.value = data;
   console.log(starlist)
 }

@@ -524,7 +524,8 @@ export async function apiItemStar(
                 }
             })
             await axiosClient.delete("/deletestar", {params: findData});
-            return showSuccess(apiItemStar.name, "取消点赞成功");
+            showSuccess(apiItemStar.name, "取消点赞成功");
+            return null
         } else {
             console.log(itemId, uuid, itemtitle);
             const data = await axiosClient.post(`/items/put/addstar/${itemId}`, {
