@@ -3,7 +3,7 @@ import {alertFail, alertSuccess, showFail, showSuccess} from "./showMessage";
 import {useUserStore} from "@/stores/user";
 import qs from "qs";
 import {baseUrl} from "@/stores/basic-data";
-import {ref, toValue, watch, watchEffect} from "vue";
+import {reactive, ref, toValue, watch, watchEffect} from "vue";
 import {gotoLogin} from "@/router";
 
 let userStore: ReturnType<typeof useUserStore>;
@@ -462,6 +462,7 @@ export function apiGetCommentsByItemId(counter = ref(1), itemId: any) {
     return {comments, error, isLoading};
 }
 
+
 export async function apiDeleteCommentById(commentId: any) {
     try {
         let res = await axiosClient.delete("/delete-comment/" + commentId);
@@ -471,14 +472,22 @@ export async function apiDeleteCommentById(commentId: any) {
     }
 }
 
+
+
 export async function apiPostComment(itemId: any, params: any) {
+    userStore = useUserStore();
+    // console.log(params)
     try {
         let res = await axiosClient.post("/comments/" + itemId, params);
+        console.log(res)
+
         return Promise.resolve(res?.data);
     } catch (error: any) {
         alertFail(apiPostComment.name, error?.message);
     }
 }
+
+
 
 export async function apiFindStarByUUID() {
     userStore = useUserStore();

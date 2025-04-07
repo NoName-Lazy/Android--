@@ -2,7 +2,7 @@
   <nut-navbar
     title="用户文章列表"
     left-show
-    @click-back="gotoAllArticle"
+    @click-back="gotoBack"
   ></nut-navbar>
   <nut-searchbar
     v-model="searchVal"
@@ -27,7 +27,7 @@ import { useScrollPos } from "@/utils/scrollUtils";
 import { storeToRefs } from "pinia";
 import { onActivated, onMounted, ref } from "vue";
 import ArticleList from "@/components/ArticleList.vue";
-import { gotoAllArticle, gotoLogin } from "@/router";
+import {gotoAllArticle, gotoBack, gotoLogin} from "@/router";
 import { Search2 } from "@nutui/icons-vue";
 import { useRoute } from "vue-router";
 

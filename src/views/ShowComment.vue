@@ -33,35 +33,33 @@
         </span>
       </template>
       <template #content>
-        <div v-if="item.hint" style="color: grey">
-          {{ item.hint }}
-        </div>
         <div>
           {{ item.content }}
         </div>
       </template>
+      <!-- 嵌套二级评论 -->
       <a-comment
           align="right"
-          v-for="item1 in comments?.filter(item1 => item1.hint && item1.hint.includes(item?.content))"
-          :author="item1.owner.name"
-          :avatar="imageBaseUrl + item1.owner.avatar"
-          :datetime="formatDateTime(item1.create_time)"
-          :key="item1.id"
+          v-for="reply in comments?.filter(reply => reply.hint && reply.hint.split('$')[1] === item.order)"
+          :author="reply.owner.name"
+          :avatar="imageBaseUrl + reply.owner.avatar"
+          :datetime="formatDateTime(reply.create_time)"
+          :key="reply.id"
       >
         <template #actions>
-          <span @click="setReplyHint(item1)">
+          <span @click="setReplyHint(reply)">
             <IconMessage></IconMessage>引用
           </span>
-          <span v-if="item1.owner_id == uuid" @click="commitDeleteComment(item1)">
+          <span v-if="reply.owner_id == uuid" @click="commitDeleteComment(reply)">
             <IconDelete></IconDelete>删除
           </span>
         </template>
         <template #content>
-          <div v-if="item1.hint" style="color: grey">
-            {{ item1.hint }}
+          <div v-if="reply.hint" style="color: grey">
+            {{ reply.hint.split('$')[0] }}
           </div>
           <div>
-            {{ item1.content }}
+            {{ reply.content }}
           </div>
         </template>
       </a-comment>
@@ -76,9 +74,10 @@
             :key="0"
             v-if="!useCounter.commentCounterEnabled"
             :loading="isLoading"
+            style="margin-top: 15px"
         >刷新
         </a-button>
-        <a-button type="primary" :key="1" @click="addReply">发送</a-button>
+        <a-button type="primary" :key="1" @click="addReply" style="margin-top: 15px">发送</a-button>
       </template>
       <template #content>
         <div v-if="commentData.hint" style="color: grey">
@@ -92,6 +91,7 @@
             v-model="commentData.content"
             placeholder="Here is your reply"
         />
+
       </template>
     </a-comment>
   </div>
@@ -119,11 +119,14 @@ import {IconMessage, IconDelete} from "@arco-design/web-vue/es/icon";
 import {showDialog} from "@nutui/nutui";
 import {storeToRefs} from "pinia";
 import {computed, onMounted, reactive, ref, watch} from "vue";
+import type {Ref} from 'vue';
 import MyHead from "./MyHead.vue";
 import MyCard from "./MyCard.vue";
 import {formatDateTime} from "@/utils/formatUtils";
 import {gotoLogin} from "@/router";
 import ImageUploader from "@/views/ImageUploader.vue";
+import {showSuccess} from "@/utils/showMessage.ts";
+import {v4 as uuidv4} from 'uuid'
 
 const showPop = ref(false);
 const useCounter = useCounterStore();
@@ -139,8 +142,10 @@ const props = defineProps({
 const commentData = reactive({
   content: "",
   hint: "",
-  order: 0,
+  order: "",
+
 });
+
 const userAvatar = imageBaseUrl + userState.avatar;
 const commentCount = ref(counterRef.commentCounter);
 
@@ -158,6 +163,18 @@ const computedTitle = computed(() => {
   return itemData.value?.title ?? "";
 });
 
+
+function DeleteCommentImage() {
+  showSuccess(DeleteCommentImage.name, "删除成功")
+  // CommentImage = '';
+}
+
+function SuccessCommentImage(resObj: any) {
+
+  showSuccess(SuccessCommentImage.name, "上传成功")
+}
+
+
 function changePopStatus() {
   showPop.value = !showPop.value;
   if (showPop.value) {
@@ -170,7 +187,7 @@ function refreshFun() {
 }
 
 function setReplyHint(item: any) {
-  commentData.hint = "引用:" + item.content + "@" + item.owner.name;
+  commentData.hint = "引用:" + item.content + "@" + item.owner.name + "$" + item.order;
 }
 
 async function addReply() {
@@ -184,11 +201,13 @@ async function addReply() {
     });
     return;
   }
-
+  // console.log(commentData)
+  commentData.order = uuidv4();
   await apiPostComment(props.id, commentData);
   refreshFun();
   commentData.hint = "";
   commentData.content = "";
+  commentData.order = "";
 }
 
 async function deleteComment(item: any) {
@@ -205,6 +224,7 @@ async function commitDeleteComment(item: any) {
   };
   showDialog({title, content, onCancel, onOk});
 }
+
 
 onMounted(async () => {
   refreshFun();
@@ -248,4 +268,6 @@ onMounted(async () => {
   padding: 10px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
 </style>
