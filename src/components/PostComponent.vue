@@ -76,17 +76,22 @@ import { alertFail } from "@/utils/showMessage";
 import ImageUploader from "@/views/ImageUploader.vue";
 
 import { nextTick, onMounted, reactive, ref } from "vue";
+import {gotoBack, gotoShowArticle} from "@/router";
 
 const itemId: any = defineModel("itemId");
 const formData: any = defineModel("formData");
-const imgContents: any = defineModel("imgContents");
+const imgContents: any = defineModel("img-contents");
 const emits = defineEmits(["onSubmit"]);
 onMounted(() => {
   console.log(formData);
 });
 function addImageContent() {
-  let item = imgContents.value[-1];
-  let orderValue = item?.order ? item.order + 1 : 0;
+  console.log("imgContents", imgContents.value);
+  // 获取最后一个元素
+  let item = imgContents.value[imgContents.value.length - 1];
+  console.log("item", item);
+  // 如果 item 存在，则 order 值加 1，否则为 0
+  let orderValue = item ? item.order + 1 : 0;
   let imgItem = reactive({
     name: "",
     url: "",
@@ -122,6 +127,9 @@ async function submitContent() {
 
     // 强制更新视图
     await nextTick();
+
+    // 添加以下代码，提交后返回到 ShowArticle 页面
+    window.location.href = `/show-article/${id}`;
   } catch (error) {
     console.error("提交失败:", error);
     alertFail(submitContent.name, "提交失败，请检查数据是否正确");

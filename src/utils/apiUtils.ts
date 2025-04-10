@@ -473,20 +473,20 @@ export async function apiDeleteCommentById(commentId: any) {
 }
 
 
-
 export async function apiPostComment(itemId: any, params: any) {
     userStore = useUserStore();
-    // console.log(params)
+    console.log(params)
     try {
         let res = await axiosClient.post("/comments/" + itemId, params);
+
         console.log(res)
+
 
         return Promise.resolve(res?.data);
     } catch (error: any) {
         alertFail(apiPostComment.name, error?.message);
     }
 }
-
 
 
 export async function apiFindStarByUUID() {
@@ -603,25 +603,25 @@ export async function apiPostItemDetail(
 
         itemIdRef.value = item.id;
         itemId = item.id;
-        console.log(
-            apiPostItemDetail.name,
-            "itemIdRef未立即生效",
-            "itemIdRef",
-            itemIdRef.value,
-            "itemId",
-            itemId
-        );
     } else {
         await apiModifyItemTitle(itemId, titleForm);
     }
+
+    // 确保图片处理逻辑只执行一次
+    if (imgContents && imgContents.length > 0) {
+        await processImages(itemId, imgContents);
+    }
+
+    console.log("异步循环结束的itemIdRef", itemIdRef.value);
+    return Promise.resolve(itemId);
+}
+
+async function processImages(itemId: any, imgContents: any) {
     for (let i = 0; i < imgContents.length; i++) {
         let imgContent = imgContents[i];
         console.log("imgContents", imgContents);
-
         await apiAddOrEditImageById(itemId, imgContent);
     }
-    console.log("异步循环结束的itemIdRef", itemIdRef.value);
-    return Promise.resolve(itemId);
 }
 
 export async function apiFindStar(findData: { item_id: number; uuid: string }) {

@@ -111,9 +111,11 @@ const { itemData, error, isLoading }: any = apiGetItemById(
   routeId,
   refreshCount
 );
+
 function updateItemData() {
   console.log("itemData", itemData);
   if (itemData.value) {
+    console.log("itemData", itemData);
     formData.value.title = itemData.value.title;
     formData.value.description = itemData.value.description;
     formData.value.price = itemData.value.price;
@@ -131,8 +133,11 @@ function updateItemData() {
     imgContents.value = itemData.value.images
       .map((img: any) => reactive(img))
       .sort((a: any, b: any) => a.order - b.order);
+  } else {
+    console.error("itemData is null or undefined");
   }
 }
+
 updateItemData();
 watch(itemData, () => {
   console.log("watch itemData", itemData);
@@ -159,10 +164,10 @@ async function setToPreview() {
 }
 function onSubmitArticle() {
   refreshItem();
-  setToPreview();
 }
 onActivated(() => {
   refreshItem();
+  updateItemData(); // 确保在组件激活时更新数据
 });
 </script>
 

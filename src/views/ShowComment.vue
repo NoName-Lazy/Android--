@@ -35,6 +35,12 @@
       <template #content>
         <div>
           {{ item.content }}
+
+          <a-image
+              :src="item.src"
+              width="100%"
+              v-if="item.src"
+          ></a-image>
         </div>
       </template>
       <!-- 嵌套二级评论 -->
@@ -60,6 +66,11 @@
           </div>
           <div>
             {{ reply.content }}
+            <a-image
+                :src="reply.src"
+                width="100%"
+                v-if="reply.src"
+            ></a-image>
           </div>
         </template>
       </a-comment>
@@ -68,26 +79,33 @@
   <div v-if="isLogin" class="comment-input-container">
     <a-comment align="right" :avatar="userAvatar">
       <template #actions>
+        <ImageUploader
+            v-if="uploadview"
+            :img-src="commentData.src"
+            need-compression
+            @on-delete=""
+            @on-success="(res) => onImgContentSuccess(res)"
+        ></ImageUploader>
         <a-button
             type="primary"
             @click="refreshFun"
             :key="0"
             v-if="!useCounter.commentCounterEnabled"
             :loading="isLoading"
-            style="margin-top: 15px"
         >刷新
         </a-button>
-        <a-button type="primary" :key="1" @click="addReply" style="margin-top: 15px">发送</a-button>
+        <a-button type="primary" :key="1" @click="addReply">发送</a-button>
+
       </template>
       <template #content>
         <div v-if="commentData.hint" style="color: grey">
-          <a-input v-model="commentData.hint" readonly>
+          <nut-input v-model="commentData.hint" readonly>
             <template #append>
               <span @click="() => (commentData.hint = '')">取消引用</span>
             </template>
-          </a-input>
+          </nut-input>
         </div>
-        <a-input
+        <nut-input
             v-model="commentData.content"
             placeholder="Here is your reply"
         />
@@ -125,8 +143,9 @@ import MyCard from "./MyCard.vue";
 import {formatDateTime} from "@/utils/formatUtils";
 import {gotoLogin} from "@/router";
 import ImageUploader from "@/views/ImageUploader.vue";
-import {showSuccess} from "@/utils/showMessage.ts";
+import {showFail, showSuccess} from "@/utils/showMessage.ts";
 import {v4 as uuidv4} from 'uuid'
+import {useRoute} from "vue-router";
 
 const showPop = ref(false);
 const useCounter = useCounterStore();
@@ -143,7 +162,7 @@ const commentData = reactive({
   content: "",
   hint: "",
   order: "",
-
+  src: "",
 });
 
 const userAvatar = imageBaseUrl + userState.avatar;
@@ -163,17 +182,16 @@ const computedTitle = computed(() => {
   return itemData.value?.title ?? "";
 });
 
+const uploadview = ref(true)
 
-function DeleteCommentImage() {
-  showSuccess(DeleteCommentImage.name, "删除成功")
-  // CommentImage = '';
+const route = useRoute();
+const routeId = Number(route.params.id);
+
+
+async function onImgContentSuccess(resObj: any) {
+  console.log(resObj.src)
+  commentData.src = imageBaseUrl + resObj.src;
 }
-
-function SuccessCommentImage(resObj: any) {
-
-  showSuccess(SuccessCommentImage.name, "上传成功")
-}
-
 
 function changePopStatus() {
   showPop.value = !showPop.value;
@@ -191,28 +209,32 @@ function setReplyHint(item: any) {
 }
 
 async function addReply() {
-  // 检查内容是否为空
-  if (!commentData.content.trim()) {
+  console.log(commentData.src)
+  // 检查内容和图片是否都为空
+  if (!commentData.content.trim() && !commentData.src.trim()) {
     showDialog({
       title: "提示",
-      content: "评论内容不能为空",
+      content: "评论内容和图片不能同时为空",
       onOk: () => {
       }
     });
     return;
   }
-  // console.log(commentData)
+
   commentData.order = uuidv4();
+  console.log(commentData)
   await apiPostComment(props.id, commentData);
   refreshFun();
   commentData.hint = "";
   commentData.content = "";
   commentData.order = "";
+  commentData.src = "";
 }
 
 async function deleteComment(item: any) {
   await apiDeleteCommentById(item.id);
 }
+
 
 async function commitDeleteComment(item: any) {
   let title = "确定删除" + item.owner.name + "的回复?";
@@ -269,5 +291,23 @@ onMounted(async () => {
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.upload-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
 
+.upload-input:hover {
+  border-color: #409eff;
+}
+
+.upload-input:focus {
+  outline: none;
+  border-color: #409eff;
+  box-shadow: 0 0 5px rgba(64, 158, 255, 0.5);
+}
 </style>

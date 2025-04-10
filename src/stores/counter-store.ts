@@ -7,8 +7,8 @@ export const useCounterStore = defineStore("counterState", {
       articleCounter: 0,
       commentCounter: 0,
       timerId: null,
-      articleCounterEnabled: false,
-      commentCounterEnabled: false,
+      articleCounterEnabled: true,
+      commentCounterEnabled: true,
       interval: 1000,
     };
   },
