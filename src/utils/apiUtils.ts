@@ -661,7 +661,7 @@ export async function apiAddFollower(follower_id: string) {
     try {
         let res = await axiosClient.post(`/follow-user/${follower_id}`);
         console.log(res);
-        showSuccess(apiAddFollower.name, "关注成功");
+        alertSuccess(apiAddFollower.name, "关注成功");
         return res.data;
     } catch (e: any) {
         if (e.response) {
@@ -702,5 +702,26 @@ export async function apiStarTop5() {
         return Promise.resolve(res)
     } catch (e: any) {
         showFail(apiStarTop5.name, e.message)
+    }
+}
+
+export async function apiDeleteFollower(followed_uuid: any) {
+    try {
+        await axiosClient.delete(`/follow-delete/${followed_uuid}`)
+        alertSuccess(apiDeleteFollower.name, "取关成功")
+    } catch (e: any) {
+        showFail(apiDeleteFollower.name, e.message)
+    }
+}
+
+export async function apiGetUsernameByUUid(followed_uuid: any) {
+    console.log(followed_uuid)
+    try {
+        let res = await axiosClient.get(`/username/${followed_uuid}`)
+        console.log(res)
+        return Promise.resolve(res)
+        alertSuccess(apiGetUsernameByUUid.name, "获取成功")
+    } catch (e: any) {
+        showFail(apiGetUsernameByUUid.name, e.message)
     }
 }

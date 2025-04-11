@@ -1,41 +1,57 @@
 <template>
-  <keep-alive>
+  <keep-alive :include="cachedComponents">
     <component :is="currentComponent"></component>
   </keep-alive>
   <nut-tabbar
-    v-model="activeTab"
-    unactive-color="#505050"
-    bottom
-    safe-area-inset-bottom
-    placeholder
+      v-model="activeTab"
+      unactive-color="#505050"
+      bottom
+      safe-area-inset-bottom
+      placeholder
   >
     <nut-tabbar-item
-      v-for="item in List"
-      :key="item.name"
-      :tab-title="item.title"
-      :icon="item.icon"
+        v-for="item in tabList"
+        :key="item.name"
+        :tab-title="item.title"
+        :icon="item.icon"
     ></nut-tabbar-item>
   </nut-tabbar>
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, provide, ref, watch, watchEffect } from "vue";
+import {ref, shallowRef, watchEffect, onMounted, computed, h, watch} from "vue";
+import {useUserStore} from "@/stores/user";
+import {useRouter} from "vue-router";
+
+
 import AllArticles from "./AllArticles.vue";
 import MyArticles from "./MyArticles.vue";
 import MyComments from "./MyComments.vue";
 import MyProfile from "./MyProfile.vue";
-import { shallowRef } from "vue";
-import { Follow ,Comment, Find, Home, My } from "@nutui/icons-vue";
-import { loginOnLaunch } from "@/utils/apiUtils";
-import { gotoLogin } from "@/router";
-import { useUserStore } from "@/stores/user";
 import MyFollowers from "@/views/MyFollowers.vue";
+import {Follow, Comment, Find, Home, My} from "@nutui/icons-vue";
+
+const router = useRouter();
 const userStore = useUserStore();
-const components = [AllArticles, MyArticles, MyComments, MyFollowers, MyProfile];
-const activeTab = ref(1);
-provide("activeTab", activeTab);
+
+
+const activeTab = ref(0);
+const components = [
+  AllArticles,
+  MyArticles,
+  MyComments,
+  MyFollowers,
+  MyProfile
+];
 const currentComponent = shallowRef(components[activeTab.value]);
-const List = [
+
+
+const cachedComponents = computed(() => {
+  return components.map(comp => comp.name || comp.__name);
+});
+
+
+const tabList = computed(() => [
   {
     title: "所有文章",
     icon: h(Find),
@@ -54,31 +70,43 @@ const List = [
   {
     title: "我的关注",
     icon: h(Follow),
-    name:"follow"
+    name: "follow"
   },
   {
-    title: "涂亦强",
+    title: userStore.nickName || "我的",
     icon: h(My),
     name: "my",
-  },
-];
-// onMounted(() => {
-//   console.log("触发");
+  }
+]);
 
-//   loginOnLaunch().catch((e) => {
-//     console.log("loginOnLaunch: ", e);
-//     gotoLogin();
-//   });
-//   // tabSwitch(null, activeTab.value);
-// });
-// const tabSwitch = (_: any, index: any) => {
-//   console.log(index);
-//   currentComponent.value = components[index];
-// };
 
 watchEffect(() => {
   currentComponent.value = components[activeTab.value];
 });
+
+
+onMounted(() => {
+
+  if (!userStore.isLogin) {
+    router.push('/login');
+    return;
+  }
+
+
+  const savedTab = sessionStorage.getItem('activeTab');
+  if (savedTab) {
+    activeTab.value = parseInt(savedTab);
+  }
+});
+
+
+watch(activeTab, (newVal) => {
+  sessionStorage.setItem('activeTab', newVal.toString());
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+.keep-alive-content {
+  transition: opacity 0.3s ease;
+}
+</style>

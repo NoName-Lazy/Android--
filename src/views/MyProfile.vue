@@ -1,23 +1,23 @@
 <template>
   <nut-navbar
-    title="22211860227 涂亦强"
-    left-show
-    @click-back="gotoBack"
+      title="22211860227 涂亦强"
+      left-show
+      @click-back="gotoBack"
   ></nut-navbar>
   <div v-if="userStoreRef.isLogin.value">
     <nut-cell title="头像" is-link @click="changeUploaderView">
       <template #desc>
         <nut-avatar size="large">
-          <img :src="userDetail.avatar" />
+          <img :src="userDetail.avatar"/>
         </nut-avatar>
       </template>
     </nut-cell>
     <ImageUploader
-      v-if="uploaderView"
-      v-model:img-src="renameData.avatar"
-      need-compression
-      @on-delete="modifyProfile"
-      @on-success="modifyProfile"
+        v-if="uploaderView"
+        v-model:img-src="renameData.avatar"
+        need-compression
+        @on-delete="modifyProfile"
+        @on-success="modifyProfile"
     ></ImageUploader>
     <nut-cell :title="'UUID ' + userDetail.uuid"></nut-cell>
     <nut-cell title="姓名" is-link @click="changeNameView">
@@ -26,14 +26,15 @@
       </template>
     </nut-cell>
     <nut-input
-      v-model="renameData.name"
-      placeholder="请输入姓名"
-      clearable
-      v-if="nameView"
+        v-model="renameData.name"
+        placeholder="请输入姓名"
+        clearable
+        v-if="nameView"
     >
       <template #right>
         <nut-button type="info" size="small" @click="modifyProfile"
-          >确定</nut-button
+        >确定
+        </nut-button
         >
       </template>
     </nut-input>
@@ -44,22 +45,30 @@
     </nut-cell>
     <nut-cell title="修改密码" is-link @click="changePwdView"></nut-cell>
     <nut-input
-      v-model="newPwd"
-      placeholder="请输入新密码"
-      clearable
-      v-if="pwdView"
-      :type="pwdStyle"
+        v-model="newPwd"
+        placeholder="请输入新密码"
+        clearable
+        v-if="pwdView"
+        :type="pwdStyle"
     >
       <template #left>
         <Eye @click="changePwdStyle"></Eye>
       </template>
       <template #right>
         <nut-button type="info" size="small" @click="changePassWord"
-          >确定</nut-button
+        >确定
+        </nut-button
         >
       </template>
     </nut-input>
-    <nut-cell title="我的关注" is-link @click=""></nut-cell>
+    <nut-cell title="我的关注" is-link @click="show = true"></nut-cell>
+    <nut-popup v-model:visible="show" position="bottom" closeable round :style="{ height: '30%' }">
+      <div v-for="f in follower?.data" :key="f?.id" style="padding: 5px; border: 1px">
+        {{ f?.followed_uuid }}
+        <nut-button size="small" @click="deletefollower(f?.followed_uuid)">取关</nut-button>
+        <a-divider/>
+      </div>
+    </nut-popup>
     <nut-cell title="发表文章数" is-link @click="gotoMyArticles">
       <template #desc>
         <span>{{ userDetail.items.length }}</span>
@@ -81,15 +90,17 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { Eye } from "@nutui/icons-vue";
+import {useUserStore} from "@/stores/user";
+import {Eye} from "@nutui/icons-vue";
 import {
+  apiDeleteFollower,
+  apiFindFollowerByUUid,
   apiGetDetailProfile,
   apiLogout,
   apiModifyPassword,
   apiRenameMe,
 } from "@/utils/apiUtils";
-import { storeToRefs } from "pinia";
+import {storeToRefs} from "pinia";
 import router, {
   gotoAllArticle,
   gotoBack,
@@ -98,9 +109,11 @@ import router, {
   gotoSettings,
   gotoLogin as login,
 } from "@/router";
-import { inject, onActivated, onMounted, reactive, ref } from "vue";
-import { imageBaseUrl } from "@/stores/basic-data";
+import {inject, onActivated, onMounted, reactive, ref} from "vue";
+import {imageBaseUrl} from "@/stores/basic-data";
 import ImageUploader from "./ImageUploader.vue";
+
+const show = ref(false)
 const userStore = useUserStore();
 const userStoreRef = storeToRefs(userStore);
 const userDetail = reactive({
@@ -124,6 +137,8 @@ const newPwd = ref(userStore.getDecodedPwd);
 const inputTypes = ["password", "text"];
 const pwdStyle: any = ref(inputTypes[0]);
 const activeTab: any = inject("activeTab");
+let follower: any = []
+let followername: any = []
 
 async function modifyProfile() {
   console.log(renameData);
@@ -132,12 +147,14 @@ async function modifyProfile() {
 
   await getProfileDetail();
 }
+
 async function changePassWord() {
   let data = await apiModifyPassword(newPwd.value);
   if (data) {
     userStore.setPassword(newPwd.value);
   }
 }
+
 function changePwdStyle() {
   if (pwdStyle.value == inputTypes[0]) {
     pwdStyle.value = inputTypes[1];
@@ -145,24 +162,31 @@ function changePwdStyle() {
     pwdStyle.value = inputTypes[0];
   }
 }
+
 function changeNameView() {
   nameView.value = !nameView.value;
 }
+
 function changePwdView() {
   pwdView.value = !pwdView.value;
   if (pwdView.value) {
     newPwd.value = userStore.getDecodedPwd;
   }
 }
+
 function changeUploaderView() {
   uploaderView.value = !uploaderView.value;
 }
+
 async function logout() {
   await apiLogout();
 }
+
 function gotoLogin() {
   login();
 }
+
+
 async function getProfileDetail() {
   let data = await apiGetDetailProfile();
   if (data) {
@@ -173,6 +197,7 @@ async function getProfileDetail() {
     console.log(renameData);
   }
 }
+
 function gotoMyArticles() {
   activeTab.value = 1;
 }
@@ -181,14 +206,28 @@ function gotoMycomments() {
   activeTab.value = 2;
 }
 
+async function deletefollower(followed_uuid: any) {
+  await apiDeleteFollower(followed_uuid)
+}
+
+onActivated(async () => {
+  follower = await apiFindFollowerByUUid()
+  console.log(follower)
+  getProfileDetail();
+})
+
+onMounted(async () => {
+  follower = await apiFindFollowerByUUid()
+  console.log(follower.data)
+})
+
 onMounted(() => {
   if (userStore.isLogin) {
     getProfileDetail();
   }
 });
-onActivated(() => {
-  getProfileDetail();
-});
+
+
 </script>
 
 <style scoped>
@@ -197,6 +236,7 @@ onActivated(() => {
   justify-content: center;
   margin-top: 10px;
 }
+
 span {
   color: black;
   margin-right: 15px;
