@@ -59,6 +59,7 @@
         >
       </template>
     </nut-input>
+    <nut-cell title="我的关注" is-link @click=""></nut-cell>
     <nut-cell title="发表文章数" is-link @click="gotoMyArticles">
       <template #desc>
         <span>{{ userDetail.items.length }}</span>

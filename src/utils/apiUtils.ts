@@ -694,3 +694,13 @@ export async function apiFindFollowerByUUid() {
         showFail(apiFindFollowerByUUid.name, e.message)
     }
 }
+
+export async function apiStarTop5() {
+    try {
+        let res = await axiosClient.get("/items/top-liked/")
+        console.log(res)
+        return Promise.resolve(res)
+    } catch (e: any) {
+        showFail(apiStarTop5.name, e.message)
+    }
+}
