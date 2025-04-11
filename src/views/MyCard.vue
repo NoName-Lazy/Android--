@@ -1,5 +1,5 @@
 <template>
-  <nut-badge value="NEW" color="purple" right="13" top="5" :hidden="isAlreadyRead || !props.src"  >
+  <nut-badge value="NEW" color="purple" right="13" top="5" :hidden="isAlreadyRead || !props.src">
     <a-card :style="{ width: '96vw' }">
       <template #actions v-if="props.showMessage">
       <span class="icon-hover" @click="onClickShowArticles">
@@ -14,9 +14,16 @@
         <span class="icon-hover" @click="onClickMessage">
         <IconMessage/>{{ props.comment_count }}
       </span>
-        <span class="icon-hover" @click="onClickMore">
-        <IconMore/>
-      </span>
+        <a-trigger position="top" auto-fit-position :unmount-on-close="false">
+          <span class="icon-hover">
+            <IconMore/>
+          </span>
+          <template #content>
+            <div @click="onClickFollower">
+              <IconUserAdd size="32" />
+            </div>
+          </template>
+        </a-trigger>
       </template>
       <template #cover>
         <div class="cover">
@@ -55,11 +62,18 @@ import {
   IconMessage,
   IconMore,
   IconRedo,
+  IconUserAdd,
 } from "@arco-design/web-vue/es/icon";
 import {HeartFill} from "@nutui/icons-vue"
 import {gotoOtherArticle} from "@/router";
 import {useUserStore} from "@/stores/user.ts";
-import {apiAlreadyReadItems, apiFindStar, apiFindStarByUUID} from "@/utils/apiUtils.ts";
+import {
+  apiAddFollower,
+  apiAlreadyReadItems,
+  apiFindStar,
+  apiFindStarByUUID,
+  apiGetItemDataById
+} from "@/utils/apiUtils.ts";
 
 const userStore = useUserStore();
 
@@ -123,7 +137,7 @@ const modify_time = computed(() => {
 const emit = defineEmits([
   "onClickShowArticles",
   "onClickStar",
-  "onClickMoreActions",
+  "onClickFollower",
   "onClickItem",
   "onClickComment",
 ]);
@@ -138,8 +152,9 @@ async function onClickShowArticles() {
 const onClickStar = () => {
   emit("onClickStar", props.id);
 };
-const onClickMore = () => {
-  emit("onClickMoreActions", props.id);
+const onClickFollower = () => {
+  emit("onClickFollower", props.id);
+  FindFollowerUUid(props.id)
 };
 const onClickItem = () => {
   emit("onClickItem", props.id);
@@ -157,6 +172,12 @@ const imageSrc = computed(() => {
   return imageBaseUrl + props.src;
 });
 
+
+async function FindFollowerUUid(follower_id: any) {
+  let itemData = await apiGetItemDataById(follower_id)
+  // console.log(itemData.data.owner_id)
+  await apiAddFollower(itemData.data.owner_id)
+}
 
 onMounted(() => {
   console.log("MyCard", props);

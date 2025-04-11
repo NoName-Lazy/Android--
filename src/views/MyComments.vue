@@ -25,7 +25,7 @@
           <div>
             <span>{{ c.content }}</span>
             <a-image
-                :src="c.src"
+                :src="imageBaseUrl + c.src"
                 width="100%"
                 v-if="c.src"
             ></a-image>

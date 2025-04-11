@@ -54,6 +54,7 @@
               @onClickStar="(id) => clickStar(id, item.title,item.star)"
               @onClickComment="gotoShowComment(item.id)"
               @onClickShowArticles="ShowArticle(item.id)"
+              @onClickFollower="item.id"
           ></MyCard>
         </nut-pull-refresh>
       </nut-space>
@@ -79,7 +80,7 @@ import {
   apiGetAllItemsByUserId,
   apiGetAllItemsRefresh,
   apiGetCommentsByItemId,
-  apiGetMyComments, apiFindStarByUUID, apiAlreadyReadItems, apiFindAlreadyReadItems,
+  apiGetMyComments, apiFindStarByUUID, apiAlreadyReadItems, apiFindAlreadyReadItems, apiGetItemDataById,
 } from "@/utils/apiUtils";
 import {computed, onActivated, onMounted, reactive, ref, watch} from "vue";
 import MyCard from "./MyCard.vue";
@@ -176,7 +177,6 @@ watch(starlist, (newVal) => {
 }, {deep: true});
 
 
-
 useScrollPos();
 
 function refreshFun() {
@@ -231,6 +231,8 @@ async function FindAlreadyReadItems() {
   alreadyreaditemlist.value = data
   console.log(alreadyreaditemlist)
 }
+
+
 
 onActivated(async () => {
   refreshFun()

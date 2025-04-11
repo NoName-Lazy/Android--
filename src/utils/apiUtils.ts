@@ -656,3 +656,41 @@ export async function apiFindAlreadyReadItems() {
         showFail(apiAlreadyReadItems.name, e.message)
     }
 }
+
+export async function apiAddFollower(follower_id: string) {
+    try {
+        let res = await axiosClient.post(`/follow-user/${follower_id}`);
+        console.log(res);
+        showSuccess(apiAddFollower.name, "关注成功");
+        return res.data;
+    } catch (e: any) {
+        if (e.response) {
+            switch (e.response.status) {
+                case 400:
+                    alertFail(apiAddFollower.name, "不能关注自己")
+                    break;
+                case 406:
+                    alertFail(apiAddFollower.name, "已关注该用户")
+                    break;
+                case 404:
+                    showFail("操作失败", "用户不存在");
+                    break;
+                default:
+                    showFail("关注失败", e.response.data?.detail || e.message);
+            }
+        } else {
+            showFail("网络错误", e.message);
+        }
+        throw e;
+    }
+}
+
+export async function apiFindFollowerByUUid() {
+    userStore = useUserStore()
+    try {
+        let res = await axiosClient.get(`/follow-user/${userStore.uuid}`)
+        return res;
+    } catch (e: any) {
+        showFail(apiFindFollowerByUUid.name, e.message)
+    }
+}

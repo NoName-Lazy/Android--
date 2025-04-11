@@ -11,6 +11,7 @@ import AllArticles from "@/views/AllArticles.vue";
 import path from "path";
 import MyComments from "@/views/MyComments.vue";
 import MyArticles from "@/views/MyArticles.vue";
+import MyFollowers from "@/views/MyFollowers.vue";
 
 // import MyProfile from "@/views/TestImageuploader.vue";
 
@@ -22,6 +23,7 @@ const routes = [
   { path: "/post-article", name: "postArticle", component: PostArticle },
   { path: "/mycomment", name: "myComment", component: MyComments },
   { path: "/myarticle", name: "myArticle", component: MyArticles },
+  { path: "/myfollower", name: "myFollower", component: MyFollowers},
   {
     path: "/show-comment/:id",
     name: "showComment",
@@ -95,6 +97,9 @@ export function gotoMyComments() {
 }
 export function gotoMyArticles() {
   router.push({ name: "myArticle" });
+}
+export function gotoMyFollowers() {
+  router.push({name: "myFollower"})
 }
 export function replaceToShowArticle(itemId: any) {
   router.replace({ name: "showArticle", params: { id: itemId } });

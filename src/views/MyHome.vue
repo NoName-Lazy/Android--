@@ -25,12 +25,13 @@ import MyArticles from "./MyArticles.vue";
 import MyComments from "./MyComments.vue";
 import MyProfile from "./MyProfile.vue";
 import { shallowRef } from "vue";
-import { Comment, Find, Home, My } from "@nutui/icons-vue";
+import { Follow ,Comment, Find, Home, My } from "@nutui/icons-vue";
 import { loginOnLaunch } from "@/utils/apiUtils";
 import { gotoLogin } from "@/router";
 import { useUserStore } from "@/stores/user";
+import MyFollowers from "@/views/MyFollowers.vue";
 const userStore = useUserStore();
-const components = [AllArticles, MyArticles, MyComments, MyProfile];
+const components = [AllArticles, MyArticles, MyComments, MyFollowers, MyProfile];
 const activeTab = ref(1);
 provide("activeTab", activeTab);
 const currentComponent = shallowRef(components[activeTab.value]);
@@ -49,6 +50,11 @@ const List = [
     title: "我的评论",
     icon: h(Comment),
     name: "comment",
+  },
+  {
+    title: "我的关注",
+    icon: h(Follow),
+    name:"follow"
   },
   {
     title: "涂亦强",
