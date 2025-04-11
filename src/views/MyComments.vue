@@ -24,6 +24,11 @@
         <template #description>
           <div>
             <span>{{ c.content }}</span>
+            <a-image
+                :src="c.src"
+                width="100%"
+                v-if="c.src"
+            ></a-image>
           </div>
           <div style="font-size: xx-small">
             <span>{{ formatDateTime(c.create_time) }}</span>

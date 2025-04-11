@@ -37,7 +37,7 @@
           {{ item.content }}
 
           <a-image
-              :src="item.src"
+              :src="imageBaseUrl + item.src"
               width="100%"
               v-if="item.src"
           ></a-image>
@@ -67,7 +67,7 @@
           <div>
             {{ reply.content }}
             <a-image
-                :src="reply.src"
+                :src="imageBaseUrl + reply.src"
                 width="100%"
                 v-if="reply.src"
             ></a-image>
@@ -190,7 +190,7 @@ const routeId = Number(route.params.id);
 
 async function onImgContentSuccess(resObj: any) {
   console.log(resObj.src)
-  commentData.src = imageBaseUrl + resObj.src;
+  commentData.src = resObj.src;
 }
 
 function changePopStatus() {

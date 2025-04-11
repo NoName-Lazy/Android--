@@ -46,18 +46,20 @@
       >
         <nut-pull-refresh v-model="isLoading" @refresh="refreshFun">
           <MyCard
+              :alreadyreaditemlist=alreadyreaditemlist
               :starlist=starlist
               v-for="[k, item] in filteredList"
               :key="item.id + '-' + item.star"
               v-bind="item"
               @onClickStar="(id) => clickStar(id, item.title,item.star)"
               @onClickComment="gotoShowComment(item.id)"
-              @onClickShowArticles="gotoShowArticle(item.id)"
+              @onClickShowArticles="ShowArticle(item.id)"
           ></MyCard>
         </nut-pull-refresh>
       </nut-space>
       <nut-space v-else direction="vertical" align="center" fill>
         <MyCard
+            :alreadyreaditemlist=alreadyreaditemlist
             :starlist=starlist
             v-for="[k, item] in filteredList"
             :key="item.id + '-' + item.star"
@@ -77,9 +79,9 @@ import {
   apiGetAllItemsByUserId,
   apiGetAllItemsRefresh,
   apiGetCommentsByItemId,
-  apiGetMyComments, apiFindStarByUUID,
+  apiGetMyComments, apiFindStarByUUID, apiAlreadyReadItems, apiFindAlreadyReadItems,
 } from "@/utils/apiUtils";
-import {computed, onActivated, onMounted, ref, watch} from "vue";
+import {computed, onActivated, onMounted, reactive, ref, watch} from "vue";
 import MyCard from "./MyCard.vue";
 import {useCounterStore} from "@/stores/counter-store";
 import {storeToRefs} from "pinia";
@@ -107,6 +109,8 @@ const q = computed(() => {
 const allList = ref(new Map());
 const {list, error, isLoading} = apiGetAllItemsRefresh(counterRef, q);
 const starlist = ref<any[]>([]);
+const alreadyreaditemlist = ref<any[]>([]);
+
 const filteredList = computed(() => {
   // console.log(allList);
 
@@ -133,6 +137,10 @@ const filteredList = computed(() => {
       })
   );
 });
+
+async function ShowArticle(id: any) {
+  gotoShowArticle(id)
+}
 
 function loadMore() {
   pageSize = DEFAULT_PAGE_SIZE;
@@ -167,9 +175,7 @@ watch(starlist, (newVal) => {
   console.log('starlist updated:', newVal)
 }, {deep: true});
 
-onActivated(() => {
-  refreshFun();
-});
+
 
 useScrollPos();
 
@@ -208,7 +214,7 @@ async function clickStar(id: any, itemtitle: any, itemstar: any) {
     starlist.value.data.splice(starIndex, 1);
   } else {
     // 点赞：添加到 starlist
-    starlist.value.data.push({ item_id: id, star: 1 }); // 确保 star 有初始值
+    starlist.value.data.push({item_id: id, star: 1}); // 确保 star 有初始值
   }
   refreshFun();
 }
@@ -220,8 +226,20 @@ async function FindStar() {
   console.log(starlist)
 }
 
+async function FindAlreadyReadItems() {
+  const data: any = await apiFindAlreadyReadItems();
+  alreadyreaditemlist.value = data
+  console.log(alreadyreaditemlist)
+}
+
+onActivated(async () => {
+  refreshFun()
+  await FindAlreadyReadItems()
+})
+
 onMounted(() => {
   FindStar();
+  FindAlreadyReadItems();
 })
 </script>
 

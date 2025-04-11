@@ -6,6 +6,7 @@ import {baseUrl} from "@/stores/basic-data";
 import {reactive, ref, toValue, watch, watchEffect} from "vue";
 import {gotoLogin} from "@/router";
 
+
 let userStore: ReturnType<typeof useUserStore>;
 const url = baseUrl;
 axios.defaults.baseURL = url;
@@ -630,5 +631,28 @@ export async function apiFindStar(findData: { item_id: number; uuid: string }) {
         // console.log(res);
         return res;
     } catch (error: any) {
+    }
+}
+
+export async function apiAlreadyReadItems(item_id: number) {
+    try {
+        let res = await axiosClient.post(`/already-users-items/${item_id}`)
+        console.log(res)
+        showSuccess(apiAlreadyReadItems.name, null)
+        return res
+    } catch (e: any) {
+        showFail(apiAlreadyReadItems.name, e.message)
+    }
+}
+
+
+export async function apiFindAlreadyReadItems() {
+    userStore = useUserStore()
+    try {
+        let res = await axiosClient.get(`/alreadyitems/${userStore.uuid}`)
+        console.log(res)
+        return res
+    } catch (e: any) {
+        showFail(apiAlreadyReadItems.name, e.message)
     }
 }

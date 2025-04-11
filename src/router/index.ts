@@ -67,6 +67,7 @@ export function gotoHome() {
 }
 export function gotoBack() {
   router.back();
+
 }
 export function gotoRegister() {
   router.push({ name: "register" });
